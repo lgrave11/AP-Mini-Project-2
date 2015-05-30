@@ -2,6 +2,7 @@
 #define POLYNOMIAL_H
 #include <iostream>
 #include <vector>
+#include <iostream>
 #include <initializer_list>
 
 class Polynomial
@@ -17,6 +18,7 @@ class Polynomial
         double ComputeIntegral(int, int);
         Polynomial operator+(const Polynomial&);
         Polynomial operator-(const Polynomial&);
+        friend std::ostream& operator<< (std::ostream&, const Polynomial&);
         virtual ~Polynomial();
         int degree;
         std::vector<int> coefficients;

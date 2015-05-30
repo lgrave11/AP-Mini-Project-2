@@ -8,7 +8,8 @@
 int main()
 {
     Polynomial bla {4, {5,3,-1,2}};
-    Polynomial bla2 {4, {2,3,4,5}};
-    std::cout << bla.ComputeIntegral(0, 10) << std::endl;
+    Polynomial bla2 {4, {5,3,-1,2}};
+    auto blah3 = bla + bla2;
+    std::cout << blah3 << std::endl;
     return 0;
 }

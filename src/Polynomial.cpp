@@ -143,6 +143,19 @@ Polynomial Polynomial::operator-(const Polynomial& rhs) {
     return res;
 }
 
+std::ostream& operator<< (std::ostream& out, const Polynomial& pol) {
+    auto index = 0;
+    auto lastIndex = pol.coefficients.size() - 1;
+    for(auto coeff : pol.coefficients)
+    {
+        out << "(" << coeff << "*" << "x^" << index << ")";
+        if(index != lastIndex) {
+            out << " + ";
+        }
+        index++;
+    }
+    return out;
+}
 
 Polynomial::~Polynomial()
 {
