@@ -5,25 +5,39 @@
 #include <iostream>
 #include <initializer_list>
 
-class Polynomial
+namespace PolynomialLib
 {
-    public:
-        Polynomial();
-        Polynomial(int, std::vector<int>);
-        void Scale(int);
-        void AddRoot(int);
-        void AddRoots(std::vector<int>);
-        int EvaluatePolynomial(int);
-        double ComputeDerivative(int);
-        double ComputeIntegral(int, int);
-        Polynomial operator+(const Polynomial&);
-        Polynomial operator-(const Polynomial&);
-        friend std::ostream& operator<< (std::ostream&, const Polynomial&);
-        virtual ~Polynomial();
-        int degree;
-        std::vector<int> coefficients;
-    protected:
-    private:
-};
+    // Forward declaration is required it is used in the operator forward declarations.
+    template<typename C> class Polynomial;
+    // Forward declarations for operator overloads. This is a choice, alternatively I could also have used a different template typename.
+    template<typename C> std::ostream& operator<< (std::ostream&, const Polynomial<C>&);
+
+    template<typename C> class Polynomial
+    {
+        public:
+            Polynomial();
+            Polynomial(int degree, std::vector<C> coefficients);
+            virtual ~Polynomial();
+
+            void Scale(C); // OK
+            void AddRoot(C);
+            void AddRoots(std::vector<C>);
+            C EvaluatePolynomial(C); // OK
+            C ComputeDerivative(C); // OK
+            C ComputeIntegral(C, C); // OK
+
+            // Operators
+            Polynomial<C> operator+(const Polynomial<C>&); // OK
+            Polynomial<C> operator-(const Polynomial<C>&); // OK
+            friend std::ostream& operator<< <>(std::ostream&, const Polynomial<C>&); // <> required to tell operator<< that this is a template function.
+
+            int degree;
+            std::vector<C> coefficients;
+        protected:
+        private:
+    };
+}
+
+
 
 #endif // POLYNOMIAL_H
