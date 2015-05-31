@@ -13,9 +13,9 @@ namespace PolynomialLib {
     // b
     // F.eks: [5,3,-1,2] = p(x) = (5 * x^0) + (3 * x^1) + (-1 * x^2) + (2 * x^3)
     template<typename C>
-    Polynomial<C>::Polynomial(int deg, std::vector<C> coeffs)
+    Polynomial<C>::Polynomial(std::vector<C> coeffs)
     {
-        this->degree = deg;
+        this->degree = coeffs.size();
         this->coefficients = coeffs;
     }
 
@@ -62,9 +62,9 @@ namespace PolynomialLib {
     template<typename C>
     C Polynomial<C>::EvaluatePolynomial(C x)
     {
-        auto result = 0;
+        C result{};
         for (auto i = 0; i < this->degree; i++)
-            result += this->coefficients[i] * pow(x, i);
+            result = result + (this->coefficients[i] * pow(x, i));
         return result;
     }
 
@@ -72,13 +72,13 @@ namespace PolynomialLib {
     template<typename C>
     C Polynomial<C>::ComputeDerivative(C x)
     {
-        auto sum = 0.0f;
-        auto p = 1.0f;
+        C sum{};
+        C p{};
         auto counter = 1;
 
         for(int i=1; i < this->degree; i++)
         {
-            sum += this->coefficients[i]*p*counter;
+            sum += (this->coefficients[i]*p*counter);
             counter++;
             p = p*x;
         }
@@ -90,8 +90,8 @@ namespace PolynomialLib {
     template<typename C>
     C Polynomial<C>::ComputeIntegral(C a, C b)
     {
-        auto left = 0.0f;
-        auto right = 0.0f;
+        C left {};
+        C right {};
         for (auto i=0; i < this->degree; i++)
         {
             //std::cout << "((" << this->coefficients[i] << "/" << (i+1) << ") * " << b << "^" << (i+1) << ")" << std::endl;
@@ -119,22 +119,28 @@ namespace PolynomialLib {
         else {
             transform(rhs.coefficients.begin(),rhs.coefficients.end(),coefficients.begin(),std::back_inserter(result),std::plus<C>());
         }
-        Polynomial<C> res {(int)result.size(), result};  // Cast to int or it gives narrowing warning from int to unsigned int.
+        Polynomial<C> res {result};
 
         return res;
     }
 
     template<typename C>
-    Polynomial<C> Polynomial<C>::operator-(const Polynomial<C>& rhs) {
+    Polynomial<C> Polynomial<C>::operator*(const Polynomial<C>& rhs) {
         std::vector<C> result {};
-        if(degree >= rhs.degree) {
-            transform(coefficients.begin(),coefficients.end(),rhs.coefficients.begin(),std::back_inserter(result),std::minus<C>());
-        }
-        else {
-            transform(rhs.coefficients.begin(),rhs.coefficients.end(),coefficients.begin(),std::back_inserter(result),std::minus<C>());
+
+        // Initialize vector so we can easily put in the values.
+        for (auto i = 0; i < degree + rhs.degree-1; i++) {
+            result.push_back(0);
         }
 
-        Polynomial<C> res {(int)result.size(), result}; // Cast to int or it gives narrowing warning from int to unsigned int.
+        for (auto i=0; i < degree; i++)
+        {
+            for (auto j=0; j < rhs.degree; j++) {
+                result[i+j] += coefficients[i] * rhs.coefficients[j];
+            }
+        }
+
+        Polynomial<C> res {result};
 
         return res;
     }

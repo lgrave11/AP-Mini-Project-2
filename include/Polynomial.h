@@ -16,7 +16,7 @@ namespace PolynomialLib
     {
         public:
             Polynomial();
-            Polynomial(int degree, std::vector<C> coefficients);
+            Polynomial(std::vector<C> coefficients);
             virtual ~Polynomial();
 
             void Scale(C); // OK
@@ -28,7 +28,7 @@ namespace PolynomialLib
 
             // Operators
             Polynomial<C> operator+(const Polynomial<C>&); // OK
-            Polynomial<C> operator-(const Polynomial<C>&); // OK
+            Polynomial<C> operator*(const Polynomial<C>&);
             friend std::ostream& operator<< <>(std::ostream&, const Polynomial<C>&); // <> required to tell operator<< that this is a template function.
 
             int degree;
