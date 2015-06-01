@@ -19,7 +19,8 @@ namespace PolynomialLib
         public:
             Polynomial();
             //template<typename C>
-            Polynomial(std::vector<T>);
+            template<typename Container>
+            Polynomial(Container&);
             Polynomial(const Polynomial<T>& oPoly); // Copy constructor
             Polynomial(Polynomial<T>&& oPoly); // Move constructor
             Polynomial& operator= (const Polynomial<T>& oPoly); // Copy assignment operator.
@@ -29,7 +30,8 @@ namespace PolynomialLib
             void Scale(const T); // OK
             void AddRoot(const T);
             //template<typename C>
-            void AddRoots(const std::vector<T>);
+            template<typename Container>
+            void AddRoots(const Container&);
             T EvaluatePolynomial(const T); // OK
             T ComputeDerivative(const T); // OK
             T ComputeIntegral(const T, const T); // OK

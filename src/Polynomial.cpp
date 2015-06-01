@@ -3,6 +3,7 @@
 #include <math.h>
 #include <type_traits>
 #include <iterator>
+#include <array>
 
 namespace PolynomialLib {
     // a
@@ -14,11 +15,13 @@ namespace PolynomialLib {
     // b
     // F.eks: [5,3,-1,2] = p(x) = (5 * x^0) + (3 * x^1) + (-1 * x^2) + (2 * x^3)
     template<typename T>
-    //template<typename C>
-    Polynomial<T>::Polynomial(std::vector<T> coeffs)
+    template<typename Container>
+    Polynomial<T>::Polynomial(Container& coeffs)
     {
         this->degree = coeffs.size();
-        this->coefficients = coeffs;
+        for(const auto& item : coeffs) {
+            this->coefficients.push_back(item);
+        }
     }
 
     template<typename T>
@@ -62,8 +65,8 @@ namespace PolynomialLib {
 
     // e
     template<typename T>
-    //template<typename C>
-    void Polynomial<T>::AddRoots(const std::vector<T> roots)
+    template<typename Container>
+    void Polynomial<T>::AddRoots(const Container& roots)
     {
         for(const auto& i : roots) {
             this->AddRoot(i);
@@ -76,8 +79,14 @@ namespace PolynomialLib {
     {
         /// Use lambda expressions (Chapter 6, e.g. when computing sums during evaluation of a polynomial; dispatch asynchronous computation).
         T result{};
-        for (auto i = 0; i < this->degree; i++)
-            result += (this->coefficients[i] * pow(x, i));
+
+        auto i = 0;
+        // Use non-member begin and end for making it more generic.
+        // Capture everything, because we need most of everything.
+        std::for_each(std::begin(this->coefficients),std::end(this->coefficients),[&](T n){ result += (n * pow(x, i)); i++; });
+        // Alternative could have used an ordinary for loop:
+        /*for (auto i = 0; i < this->degree; i++)
+            result += (this->coefficients[i] * pow(x, i));*/
         return result;
     }
 
