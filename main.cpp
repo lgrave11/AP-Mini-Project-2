@@ -8,6 +8,16 @@
 
 int main()
 {
+    std::cout << "For int" << std::endl;
+    PolynomialLib::Polynomial<int> bla_int {{5,3,-1,2}};
+    PolynomialLib::Polynomial<int> bla2_int {{5,3,-1}};
+    std::cout << bla_int << std::endl;
+    std::cout << bla_int + bla2_int << std::endl;
+    std::cout << bla_int * bla_int << std::endl;
+    std::cout << bla_int.EvaluatePolynomial(5) << std::endl; // Should be 245
+    std::cout << bla_int.ComputeDerivative(5) << std::endl; // Should be 143
+    //std::cout << bla_int.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7
+
     std::cout << "For double" << std::endl;
     PolynomialLib::Polynomial<double> bla_double {{5,3,-1,2}};
     PolynomialLib::Polynomial<double> bla2_double {{5,3,-1}};

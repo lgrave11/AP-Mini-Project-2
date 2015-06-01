@@ -22,7 +22,7 @@ namespace PolynomialLib {
 
     // c
     template<typename C>
-    void Polynomial<C>::Scale(C scalar)
+    void Polynomial<C>::Scale(const C scalar)
     {
         std::vector<C> scaledCoefficients;
         // Use const reference because we are not modifying i.
@@ -36,7 +36,7 @@ namespace PolynomialLib {
 
     // d
     template<typename C>
-    void Polynomial<C>::AddRoot(C root)
+    void Polynomial<C>::AddRoot(const C root)
     {
         std::vector<C> addedRoot;
         C lastValue{};
@@ -62,7 +62,7 @@ namespace PolynomialLib {
 
     // f
     template<typename C>
-    C Polynomial<C>::EvaluatePolynomial(C x)
+    C Polynomial<C>::EvaluatePolynomial(const C x)
     {
         C result{};
         for (auto i = 0; i < this->degree; i++)
@@ -72,7 +72,7 @@ namespace PolynomialLib {
 
     // g -- (1*c1 * x^0) + (2*c2 * x^1) + (3*c3 * x^2) + ... + n * cn * x^n-1
     template<typename C>
-    C Polynomial<C>::ComputeDerivative(C x)
+    C Polynomial<C>::ComputeDerivative(const C x)
     {
         C sum{};
         double p = 1;
@@ -92,7 +92,7 @@ namespace PolynomialLib {
     }
     // h, a method to compute an integral for given interval bounds.
     template<typename C>
-    C Polynomial<C>::ComputeIntegral(C a, C b)
+    C Polynomial<C>::ComputeIntegral(const C a, const C b)
     {
         // Alternatively I could have used enable_if here (std::enable_if_t<!std::is_integral<C>::value, C>),
         // but I like the static_assert message more.
@@ -133,7 +133,7 @@ namespace PolynomialLib {
         std::vector<C> tmp {};
 
         // Initialize vector so we can easily put in the values.
-        int newDegree = degree + rhs.degree-1;
+        const int newDegree = degree + rhs.degree-1;
         for (auto i = 0; i < newDegree; i++) {
             tmp.push_back(0);
         }
