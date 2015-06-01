@@ -74,9 +74,10 @@ namespace PolynomialLib {
     template<typename T>
     T Polynomial<T>::EvaluatePolynomial(const T x)
     {
+        /// Use lambda expressions (Chapter 6, e.g. when computing sums during evaluation of a polynomial; dispatch asynchronous computation).
         T result{};
         for (auto i = 0; i < this->degree; i++)
-            result = result + (this->coefficients[i] * pow(x, i));
+            result += (this->coefficients[i] * pow(x, i));
         return result;
     }
 
@@ -105,8 +106,8 @@ namespace PolynomialLib {
     template<typename T>
     T Polynomial<T>::ComputeIntegral(const T a, const T b)
     {
-        // Alternatively I could have used enable_if here (std::enable_if_t<!std::is_integral<T>::value, T>),
-        // but I like the static_assert message more.
+        /// Use type traits (see examples in Item 27, e.g. disable or fail assertion for the integration method over integer types).
+        // Alternatively I could have used enable_if here (std::enable_if_t<!std::is_integral<T>::value, T>).
         static_assert(!std::is_integral<T>::value,"ComputeIntegral is not supported for int types.");
         T left {};
         T right {};

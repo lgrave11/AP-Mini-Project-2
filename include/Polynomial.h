@@ -20,6 +20,10 @@ namespace PolynomialLib
             Polynomial();
             //template<typename C>
             Polynomial(std::vector<T>);
+            Polynomial(const Polynomial<T>& oPoly); // Copy constructor
+            Polynomial(Polynomial<T>&& oPoly); // Move constructor
+            Polynomial& operator= (const Polynomial<T>& oPoly); // Copy assignment operator.
+            Polynomial& operator= (Polynomial<T>&& oPoly); // Move assignment operator.
             virtual ~Polynomial();
 
             void Scale(const T); // OK
