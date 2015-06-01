@@ -8,11 +8,11 @@
 
 int main()
 {
-    PolynomialLib::Polynomial<int> bla {{5,3,-1,2}};
-    PolynomialLib::Polynomial<int> bla2 {{5,3,-1}};
+    PolynomialLib::Polynomial<double> bla {{5,3,-1,2}};
+    PolynomialLib::Polynomial<double> bla2 {{5,3,-1}};
     std::cout << bla << std::endl;
     std::cout << bla + bla2 << std::endl;
-    std::cout << bla2 * bla << std::endl;
+    std::cout << bla * bla << std::endl;
     std::cout << bla.EvaluatePolynomial(5) << std::endl; // Should be 245
     std::cout << bla.ComputeDerivative(5) << std::endl; // Should be 143
     std::cout << bla.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7

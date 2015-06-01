@@ -1,6 +1,7 @@
 #include "Polynomial.h"
 #include <algorithm>
 #include <math.h>
+#include <type_traits>
 
 namespace PolynomialLib {
     // a
@@ -86,10 +87,10 @@ namespace PolynomialLib {
 
         return sum;
     }
-
     // h, a method to compute an integral for given interval bounds.
     template<typename C>
-    C Polynomial<C>::ComputeIntegral(C a, C b)
+    typename std::enable_if<!std::is_integral<C>::value, C>::type
+    Polynomial<C>::ComputeIntegral(C a, C b)
     {
         C left {};
         C right {};
@@ -127,21 +128,31 @@ namespace PolynomialLib {
 
     template<typename C>
     Polynomial<C> Polynomial<C>::operator*(const Polynomial<C>& rhs) {
-        std::vector<C> result {};
+        std::vector<C> tmp {};
 
         // Initialize vector so we can easily put in the values.
-        for (auto i = 0; i < degree + rhs.degree-1; i++) {
-            result.push_back(0);
+        int newDegree = degree + rhs.degree-1;
+        for (auto i = 0; i < newDegree; i++) {
+            tmp.push_back(0);
         }
 
-        for (auto i=0; i < degree; i++)
+        int iCount = 0;
+        for(auto i : coefficients) {
+            int jCount = 0;
+            for(auto j : rhs.coefficients) {
+                tmp[iCount+jCount] += i * j;
+                jCount++;
+            }
+            iCount++;
+        }
+        /*for (auto i=0; i < degree; i++)
         {
             for (auto j=0; j < rhs.degree; j++) {
                 result[i+j] += coefficients[i] * rhs.coefficients[j];
             }
-        }
+        }*/
 
-        Polynomial<C> res {result};
+        Polynomial<C> res {tmp};
 
         return res;
     }
