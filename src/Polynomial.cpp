@@ -70,45 +70,46 @@ namespace PolynomialLib {
         return result;
     }
 
-    // g -- c1 + 2 * c2 * x + 3 * c3 * x^2 + ... + n * cn * x^n-1
+    // g -- (1*c1 * x^0) + (2*c2 * x^1) + (3*c3 * x^2) + ... + n * cn * x^n-1
     template<typename C>
     C Polynomial<C>::ComputeDerivative(C x)
     {
         C sum{};
-        C p = 1;
-        int counter = 1;
-
-        for(auto i=1; i < this->degree; i++)
-        {
-            sum += (this->coefficients[i] * p * counter);
-            counter++;
-            p = p*x;
+        double p = 1;
+        int counter = 0;
+        double i = 0;
+        for(auto c : coefficients) {
+            if(counter++ == 0) {
+                continue;
+            }
+            sum += p * c * pow(x, i);
+            i++;
+            p++;
         }
+
 
         return sum;
     }
     // h, a method to compute an integral for given interval bounds.
     template<typename C>
-    //std::enable_if_t<!std::is_integral<C>::value, C>
-    Polynomial<C>::ComputeIntegral(C a, C b)
+    C Polynomial<C>::ComputeIntegral(C a, C b)
     {
+        // Alternatively I could have used enable_if here (std::enable_if_t<!std::is_integral<C>::value, C>),
+        // but I like the static_assert message more.
         static_assert(!std::is_integral<C>::value,"ComputeIntegral is not supported for int types.");
         C left {};
         C right {};
-        for (auto i=0; i < this->degree; i++)
+        for (auto i=0.0; i < this->degree; i++)
         {
             //std::cout << "((" << this->coefficients[i] << "/" << (i+1) << ") * " << b << "^" << (i+1) << ")" << std::endl;
-            float tmp = ((float)this->coefficients[i] / (i+1)) * pow(b, i+1);
-            left += tmp;
+            left += (this->coefficients[i] / (i+1)) * pow(b, i+1);
         }
         //std::cout << std::endl;
-        for (auto i=0; i < this->degree; i++)
+        for (auto i=0.0; i < this->degree; i++)
         {
             //std::cout << "((" << this->coefficients[i] << "/" << (i+1) << ") * " << a << "^" << (i+1) << ")" << std::endl;
-            right += ((float)this->coefficients[i] / (i+1)) * pow(a, i+1);
+            right += (this->coefficients[i] / (i+1)) * pow(a, i+1);
         }
-        //std::cout << left << std::endl;
-        //std::cout << right << std::endl;
 
         return left - right;
     }
