@@ -4,21 +4,34 @@
 #include <algorithm>    // std::transform
 #include <functional>   // std::plus
 #include <complex>
+#include <iterator>
 #include "src/Polynomial.cpp" // Must include template implementation file.
 
 int main()
 {
     std::cout << "For int" << std::endl;
-    PolynomialLib::Polynomial<int> bla_int {{5,3,-1,2}};
-    PolynomialLib::Polynomial<int> bla2_int {{5,3,-1}};
+    std::vector<int> vec1{5, 3, -1, 2};
+    std::vector<int> vec2{5, 3, -1};
+    PolynomialLib::Polynomial<int> bla_int {vec1};
+    PolynomialLib::Polynomial<int> bla2_int {vec2};
     std::cout << bla_int << std::endl;
-    std::cout << bla_int + bla2_int << std::endl;
-    std::cout << bla_int * bla_int << std::endl;
+    // Scale
+    //bla_int.Scale(5);
+    //std::cout << bla_int << std::endl;
+    // Add root
+    //bla_int.AddRoot(5);
+    //std::cout << bla_int << std::endl;
+    // Add roots
+    //std::vector<int> vec3{5, 5, 5};
+    //bla_int.AddRoots(vec3);
+    //std::cout << bla_int << std::endl;
+    //std::cout << bla_int + bla2_int << std::endl;
+    //std::cout << bla_int * bla_int << std::endl;
     std::cout << bla_int.EvaluatePolynomial(5) << std::endl; // Should be 245
     std::cout << bla_int.ComputeDerivative(5) << std::endl; // Should be 143
-    //std::cout << bla_int.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7
+    std::cout << bla_int.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7
 
-    std::cout << "For double" << std::endl;
+    /*std::cout << "For double" << std::endl;
     PolynomialLib::Polynomial<double> bla_double {{5,3,-1,2}};
     PolynomialLib::Polynomial<double> bla2_double {{5,3,-1}};
     std::cout << bla_double << std::endl;
@@ -42,6 +55,6 @@ int main()
     std::cout << bla * bla << std::endl;
     std::cout << bla.EvaluatePolynomial(5) << std::endl; // Should be 245
     std::cout << bla.ComputeDerivative(5) << std::endl; // Should be 143
-    std::cout << bla.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7
+    std::cout << bla.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7*/
     return 0;
 }

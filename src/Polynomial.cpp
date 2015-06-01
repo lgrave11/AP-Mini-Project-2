@@ -2,58 +2,72 @@
 #include <algorithm>
 #include <math.h>
 #include <type_traits>
+#include <iterator>
 
 namespace PolynomialLib {
     // a
-    template<typename C>
-    Polynomial<C>::Polynomial()
+    template<typename T>
+    Polynomial<T>::Polynomial()
     {
         //ctor
     }
 
     // b
     // F.eks: [5,3,-1,2] = p(x) = (5 * x^0) + (3 * x^1) + (-1 * x^2) + (2 * x^3)
+    template<typename T>
     template<typename C>
-    Polynomial<C>::Polynomial(std::vector<C> coeffs)
+    Polynomial<T>::Polynomial(C& coeffs)
     {
-        this->degree = coeffs.size();
+        auto itBegin = std::begin(coeffs);
+        auto itEnd = std::end(coeffs);
+        this->degree = std::distance(itBegin, itEnd);
         this->coefficients = coeffs;
     }
 
-    // c
-    template<typename C>
-    void Polynomial<C>::Scale(const C scalar)
+    template<typename T>
+    Polynomial<T>::~Polynomial()
     {
-        std::vector<C> scaledCoefficients;
+        //dtor
+    }
+
+    // c
+    template<typename T>
+    void Polynomial<T>::Scale(T scalar)
+    {
+        std::vector<T> scaledCoefficients;
         // Use const reference because we are not modifying i.
         // Also use auto&. Could also just use auto i.
         for(const auto& i : this->coefficients) {
-            scaledCoefficients.push_back(i * scalar);
+            auto result = i * scalar;
+            scaledCoefficients.push_back(result);
         }
+        //std::transform(std::begin(this->coefficients), std::end(this->coefficients), std::begin(scaledCoefficients), std::bind1st(std::multiplies<T>(), scalar));
         this->coefficients = scaledCoefficients;
 
     }
 
     // d
-    template<typename C>
-    void Polynomial<C>::AddRoot(const C root)
+    template<typename T>
+    void Polynomial<T>::AddRoot(const T root)
     {
-        std::vector<C> addedRoot;
-        C lastValue{};
-        addedRoot.push_back((-coefficients[0] * root));
-        lastValue = coefficients[0];
+        std::vector<T> addedRoot;
+        T lastValue{};
+        addedRoot.push_back((-this->coefficients[0] * root));
+        lastValue = this->coefficients[0];
 
         for (auto i = 1; i < this->degree; i++) {
-            addedRoot.push_back((lastValue - coefficients[i] * root));
-            lastValue = coefficients[i];
+            addedRoot.push_back((lastValue - this->coefficients[i] * root));
+            lastValue = this->coefficients[i];
         }
         addedRoot.push_back(lastValue);
         this->coefficients = addedRoot;
+        this->degree = this->coefficients.size();
     }
 
     // e
+    template<typename T>
     template<typename C>
-    void Polynomial<C>::AddRoots(std::vector<C> roots)
+    void Polynomial<T>::AddRoots(C& roots)
     {
         for(const auto& i : roots) {
             this->AddRoot(i);
@@ -61,20 +75,20 @@ namespace PolynomialLib {
     }
 
     // f
-    template<typename C>
-    C Polynomial<C>::EvaluatePolynomial(const C x)
+    template<typename T>
+    T Polynomial<T>::EvaluatePolynomial(const T x)
     {
-        C result{};
+        T result{};
         for (auto i = 0; i < this->degree; i++)
             result = result + (this->coefficients[i] * pow(x, i));
         return result;
     }
 
     // g -- (1*c1 * x^0) + (2*c2 * x^1) + (3*c3 * x^2) + ... + n * cn * x^n-1
-    template<typename C>
-    C Polynomial<C>::ComputeDerivative(const C x)
+    template<typename T>
+    T Polynomial<T>::ComputeDerivative(const T x)
     {
-        C sum{};
+        T sum{};
         double p = 1;
         int counter = 0;
         double i = 0;
@@ -90,15 +104,16 @@ namespace PolynomialLib {
 
         return sum;
     }
+
     // h, a method to compute an integral for given interval bounds.
-    template<typename C>
-    C Polynomial<C>::ComputeIntegral(const C a, const C b)
+    template<typename T>
+    T Polynomial<T>::ComputeIntegral(const T a, const T b)
     {
-        // Alternatively I could have used enable_if here (std::enable_if_t<!std::is_integral<C>::value, C>),
+        // Alternatively I could have used enable_if here (std::enable_if_t<!std::is_integral<T>::value, T>),
         // but I like the static_assert message more.
-        static_assert(!std::is_integral<C>::value,"ComputeIntegral is not supported for int types.");
-        C left {};
-        C right {};
+        static_assert(!std::is_integral<T>::value,"ComputeIntegral is not supported for int types.");
+        T left {};
+        T right {};
         for (auto i=0.0; i < this->degree; i++)
         {
             //std::cout << "((" << this->coefficients[i] << "/" << (i+1) << ") * " << b << "^" << (i+1) << ")" << std::endl;
@@ -114,22 +129,22 @@ namespace PolynomialLib {
         return left - right;
     }
 
-    template<typename C>
-    Polynomial<C> Polynomial<C>::operator+(const Polynomial<C>& rhs) {
-        std::vector<C> result {};
+    template<typename T>
+    Polynomial<T> Polynomial<T>::operator+(const Polynomial<T>& rhs) {
+        std::vector<T> result {};
         if(degree >= rhs.degree) {
-            transform(coefficients.begin(),coefficients.end(),rhs.coefficients.begin(),std::back_inserter(result),std::plus<C>());
+            transform(coefficients.begin(),coefficients.end(),rhs.coefficients.begin(),std::back_inserter(result),std::plus<T>());
         }
         else {
-            transform(rhs.coefficients.begin(),rhs.coefficients.end(),coefficients.begin(),std::back_inserter(result),std::plus<C>());
+            transform(rhs.coefficients.begin(),rhs.coefficients.end(),coefficients.begin(),std::back_inserter(result),std::plus<T>());
         }
-        Polynomial<C> res {result};
+        Polynomial<T> res {result};
 
         return res;
     }
 
-    template<typename C>
-    Polynomial<C> Polynomial<C>::operator*(const Polynomial<C>& rhs) {
+    template<typename T>
+    Polynomial<T> Polynomial<T>::operator*(const Polynomial<T>& rhs) {
         std::vector<C> tmp {};
 
         // Initialize vector so we can easily put in the values.
@@ -147,23 +162,17 @@ namespace PolynomialLib {
             }
             iCount++;
         }
-        /*for (auto i=0; i < degree; i++)
-        {
-            for (auto j=0; j < rhs.degree; j++) {
-                result[i+j] += coefficients[i] * rhs.coefficients[j];
-            }
-        }*/
 
-        Polynomial<C> res {tmp};
+        Polynomial<T> res {tmp};
 
         return res;
     }
 
-    template<typename C>
-    std::ostream& operator<< (std::ostream& out, const Polynomial<C>& pol) {
+    template<typename T>
+    std::ostream& operator<< (std::ostream& out, const Polynomial<T>& pol) {
         int index = 0;
         int lastIndex = pol.coefficients.size() - 1;
-        for(auto coeff : pol.coefficients)
+        for(const auto coeff : pol.coefficients)
         {
             out << "(" << coeff << "*" << "x^" << index << ")";
             if(index != lastIndex) {
@@ -172,12 +181,6 @@ namespace PolynomialLib {
             index++;
         }
         return out;
-    }
-
-    template<typename C>
-    Polynomial<C>::~Polynomial()
-    {
-        //dtor
     }
 
 }

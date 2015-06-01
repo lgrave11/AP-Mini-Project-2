@@ -8,31 +8,35 @@
 namespace PolynomialLib
 {
     // Forward declaration is required it is used in the operator forward declarations.
-    template<typename C> class Polynomial;
+    template<typename T> class Polynomial;
     // Forward declarations for operator overloads. This is a choice, alternatively I could also have used a different template typename.
-    template<typename C> std::ostream& operator<< (std::ostream&, const Polynomial<C>&);
+    template<typename T> std::ostream& operator<< (std::ostream&, const Polynomial<T>&);
 
-    template<typename C> class Polynomial
+    // T = valuetype, e.g double, int or complex
+    // C = container type, e.g array, vector or whatever. Just the iterator.
+    template<typename T> class Polynomial
     {
         public:
             Polynomial();
-            Polynomial(std::vector<C> coefficients);
+            template<typename C>
+            Polynomial(C&);
             virtual ~Polynomial();
 
-            void Scale(C); // OK
-            void AddRoot(C);
-            void AddRoots(std::vector<C>);
-            C EvaluatePolynomial(C); // OK
-            C ComputeDerivative(C); // OK
-            C ComputeIntegral(C, C); // OK
+            void Scale(T); // OK
+            void AddRoot(T);
+            template<typename C>
+            void AddRoots(C&);
+            T EvaluatePolynomial(T); // OK
+            T ComputeDerivative(T); // OK
+            T ComputeIntegral(T, T); // OK
 
             // Operators
-            Polynomial<C> operator+(const Polynomial<C>&); // OK
-            Polynomial<C> operator*(const Polynomial<C>&);
-            friend std::ostream& operator<< <>(std::ostream&, const Polynomial<C>&); // <> required to tell operator<< that this is a template function.
+            Polynomial<T> operator+(const Polynomial<T>&); // OK
+            Polynomial<T> operator*(const Polynomial<T>&);
+            friend std::ostream& operator<< <>(std::ostream&, const Polynomial<T>&); // <> required to tell operator<< that this is a template function.
 
             int degree;
-            std::vector<C> coefficients;
+            std::vector<int> coefficients;
         protected:
         private:
     };
