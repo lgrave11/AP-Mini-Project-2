@@ -38,14 +38,15 @@ namespace PolynomialLib {
     void Polynomial<C>::AddRoot(C root)
     {
         std::vector<C> addedRoot;
-        auto lastValue = 0;
-        addedRoot.push_back((coefficients[0] * root));
+        C lastValue{};
+        addedRoot.push_back((-coefficients[0] * root));
         lastValue = coefficients[0];
 
         for (auto i = 1; i < this->degree; i++) {
             addedRoot.push_back((lastValue - coefficients[i] * root));
             lastValue = coefficients[i];
         }
+        addedRoot.push_back(lastValue);
         this->coefficients = addedRoot;
     }
 
@@ -73,12 +74,12 @@ namespace PolynomialLib {
     C Polynomial<C>::ComputeDerivative(C x)
     {
         C sum{};
-        C p{};
-        auto counter = 1;
+        C p = 1;
+        int counter = 1;
 
-        for(int i=1; i < this->degree; i++)
+        for(auto i=1; i < this->degree; i++)
         {
-            sum += (this->coefficients[i]*p*counter);
+            sum += (this->coefficients[i] * p * counter);
             counter++;
             p = p*x;
         }
