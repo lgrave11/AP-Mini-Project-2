@@ -15,12 +15,10 @@ namespace PolynomialLib {
     // b
     // F.eks: [5,3,-1,2] = p(x) = (5 * x^0) + (3 * x^1) + (-1 * x^2) + (2 * x^3)
     template<typename T>
-    template<typename C>
-    Polynomial<T>::Polynomial(C& coeffs)
+    //template<typename C>
+    Polynomial<T>::Polynomial(std::vector<T> coeffs)
     {
-        auto itBegin = std::begin(coeffs);
-        auto itEnd = std::end(coeffs);
-        this->degree = std::distance(itBegin, itEnd);
+        this->degree = coeffs.size();
         this->coefficients = coeffs;
     }
 
@@ -32,7 +30,7 @@ namespace PolynomialLib {
 
     // c
     template<typename T>
-    void Polynomial<T>::Scale(T scalar)
+    void Polynomial<T>::Scale(const T scalar)
     {
         std::vector<T> scaledCoefficients;
         // Use const reference because we are not modifying i.
@@ -66,8 +64,8 @@ namespace PolynomialLib {
 
     // e
     template<typename T>
-    template<typename C>
-    void Polynomial<T>::AddRoots(C& roots)
+    //template<typename C>
+    void Polynomial<T>::AddRoots(const std::vector<T> roots)
     {
         for(const auto& i : roots) {
             this->AddRoot(i);
@@ -145,7 +143,7 @@ namespace PolynomialLib {
 
     template<typename T>
     Polynomial<T> Polynomial<T>::operator*(const Polynomial<T>& rhs) {
-        std::vector<C> tmp {};
+        std::vector<T> tmp {};
 
         // Initialize vector so we can easily put in the values.
         const int newDegree = degree + rhs.degree-1;

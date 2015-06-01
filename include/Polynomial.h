@@ -18,17 +18,17 @@ namespace PolynomialLib
     {
         public:
             Polynomial();
-            template<typename C>
-            Polynomial(C&);
+            //template<typename C>
+            Polynomial(std::vector<T>);
             virtual ~Polynomial();
 
-            void Scale(T); // OK
-            void AddRoot(T);
-            template<typename C>
-            void AddRoots(C&);
-            T EvaluatePolynomial(T); // OK
-            T ComputeDerivative(T); // OK
-            T ComputeIntegral(T, T); // OK
+            void Scale(const T); // OK
+            void AddRoot(const T);
+            //template<typename C>
+            void AddRoots(const std::vector<T>);
+            T EvaluatePolynomial(const T); // OK
+            T ComputeDerivative(const T); // OK
+            T ComputeIntegral(const T, const T); // OK
 
             // Operators
             Polynomial<T> operator+(const Polynomial<T>&); // OK
@@ -36,7 +36,7 @@ namespace PolynomialLib
             friend std::ostream& operator<< <>(std::ostream&, const Polynomial<T>&); // <> required to tell operator<< that this is a template function.
 
             int degree;
-            std::vector<int> coefficients;
+            std::vector<T> coefficients;
         protected:
         private:
     };

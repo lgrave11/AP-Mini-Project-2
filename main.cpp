@@ -27,13 +27,15 @@ int main()
     //std::cout << bla_int << std::endl;
     //std::cout << bla_int + bla2_int << std::endl;
     //std::cout << bla_int * bla_int << std::endl;
-    std::cout << bla_int.EvaluatePolynomial(5) << std::endl; // Should be 245
-    std::cout << bla_int.ComputeDerivative(5) << std::endl; // Should be 143
-    std::cout << bla_int.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7
+    //std::cout << bla_int.EvaluatePolynomial(5) << std::endl; // Should be 245
+    //std::cout << bla_int.ComputeDerivative(5) << std::endl; // Should be 143
+    //std::cout << bla_int.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7
 
-    /*std::cout << "For double" << std::endl;
-    PolynomialLib::Polynomial<double> bla_double {{5,3,-1,2}};
-    PolynomialLib::Polynomial<double> bla2_double {{5,3,-1}};
+    std::cout << "For double" << std::endl;
+    std::vector<double> bla_vec{5, 3, -1, 2};
+    std::vector<double> bla2_vec{5, 3, -1};
+    PolynomialLib::Polynomial<double> bla_double {bla_vec};
+    PolynomialLib::Polynomial<double> bla2_double {bla2_vec};
     std::cout << bla_double << std::endl;
     std::cout << bla_double + bla2_double << std::endl;
     std::cout << bla_double * bla_double << std::endl;
@@ -49,7 +51,8 @@ int main()
     std::complex<double> z3{-1.0, 1.0};
     std::complex<double> z4{2, 1.0};
 
-    PolynomialLib::Polynomial<std::complex<double> > bla {{z1,z2,z3,z4}};
+    std::vector<std::complex<double> > bla_vec_com{z1,z2,z3,z4};
+    PolynomialLib::Polynomial<std::complex<double> > bla {bla_vec_com};
     std::cout << bla << std::endl;
     std::cout << bla + bla << std::endl;
     std::cout << bla * bla << std::endl;
