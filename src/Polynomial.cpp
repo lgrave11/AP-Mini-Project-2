@@ -89,7 +89,7 @@ namespace PolynomialLib {
     }
     // h, a method to compute an integral for given interval bounds.
     template<typename C>
-    typename std::enable_if<!std::is_integral<C>::value, C>::type
+    std::enable_if_t<!std::is_integral<C>::value, C>
     Polynomial<C>::ComputeIntegral(C a, C b)
     {
         C left {};

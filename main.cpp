@@ -8,8 +8,8 @@
 
 int main()
 {
-    PolynomialLib::Polynomial<double> bla {{5,3,-1,2}};
-    PolynomialLib::Polynomial<double> bla2 {{5,3,-1}};
+    PolynomialLib::Polynomial<int> bla {{5,3,-1,2}};
+    PolynomialLib::Polynomial<int> bla2 {{5,3,-1}};
     std::cout << bla << std::endl;
     std::cout << bla + bla2 << std::endl;
     std::cout << bla * bla << std::endl;
