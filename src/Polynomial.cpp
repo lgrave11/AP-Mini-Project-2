@@ -9,7 +9,6 @@ namespace PolynomialLib {
     template<typename T>
     Polynomial<T>::Polynomial()
     {
-        //ctor
     }
 
     // b
@@ -25,7 +24,6 @@ namespace PolynomialLib {
     template<typename T>
     Polynomial<T>::~Polynomial()
     {
-        //dtor
     }
 
     // c
@@ -48,7 +46,7 @@ namespace PolynomialLib {
     template<typename T>
     void Polynomial<T>::AddRoot(const T root)
     {
-        std::vector<T> addedRoot;
+        std::vector<T> addedRoot {};
         T lastValue{};
         addedRoot.push_back((-this->coefficients[0] * root));
         lastValue = this->coefficients[0];
@@ -90,7 +88,7 @@ namespace PolynomialLib {
         double p = 1;
         int counter = 0;
         double i = 0;
-        for(auto c : coefficients) {
+        for(const auto& c : coefficients) {
             if(counter++ == 0) {
                 continue;
             }
@@ -143,18 +141,14 @@ namespace PolynomialLib {
 
     template<typename T>
     Polynomial<T> Polynomial<T>::operator*(const Polynomial<T>& rhs) {
-        std::vector<T> tmp {};
-
-        // Initialize vector so we can easily put in the values.
+        // Initialize vector.
         const int newDegree = degree + rhs.degree-1;
-        for (auto i = 0; i < newDegree; i++) {
-            tmp.push_back(0);
-        }
+        std::vector<T> tmp(newDegree);
 
         int iCount = 0;
         for(auto i : coefficients) {
             int jCount = 0;
-            for(auto j : rhs.coefficients) {
+            for(const auto& j : rhs.coefficients) {
                 tmp[iCount+jCount] += i * j;
                 jCount++;
             }
@@ -170,7 +164,7 @@ namespace PolynomialLib {
     std::ostream& operator<< (std::ostream& out, const Polynomial<T>& pol) {
         int index = 0;
         int lastIndex = pol.coefficients.size() - 1;
-        for(const auto coeff : pol.coefficients)
+        for(const auto& coeff : pol.coefficients)
         {
             out << "(" << coeff << "*" << "x^" << index << ")";
             if(index != lastIndex) {
