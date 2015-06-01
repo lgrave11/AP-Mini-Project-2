@@ -24,7 +24,7 @@ namespace PolynomialLib
             void AddRoots(std::vector<C>);
             C EvaluatePolynomial(C); // OK
             C ComputeDerivative(C); // OK
-            std::enable_if_t<!std::is_integral<C>::value, C>
+            //std::enable_if_t<!std::is_integral<C>::value, C>
             ComputeIntegral(C, C); // OK
 
             // Operators
