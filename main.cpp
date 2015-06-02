@@ -26,7 +26,7 @@ int main()
     // Add roots
     //std::vector<int> vec3{5, 5, 5};
     //bla_int.AddRoots(vec3);
-    std::cout << bla_int << std::endl;
+    //std::cout << bla_int << std::endl;
     std::cout << bla_int + bla2_int << std::endl;
     std::cout << bla_int * bla_int << std::endl;
     std::cout << bla_int.EvaluatePolynomial(5) << std::endl; // Should be 245

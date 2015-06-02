@@ -10,12 +10,16 @@
 template<typename T> class Polynomial
 {
     public:
+        std::vector<T> coefficients;
+        int degree;
+
         Polynomial() {}
         virtual ~Polynomial() {}
         Polynomial(const Polynomial<T>& oPoly) : coefficients(oPoly.coefficients), degree(oPoly.degree) {} // Copy constructor
-        //Polynomial(Polynomial<T>&& oPoly); // Move constructor
+        Polynomial(Polynomial<T>&& oPoly); // Move constructor
+        Polynomial& operator= (Polynomial<T>&& oPoly); // Move assignment operator.
         //Polynomial& operator= (const Polynomial<T>& oPoly); // Copy assignment operator.
-        //Polynomial& operator= (Polynomial<T>&& oPoly); // Move assignment operator.
+        //
         template<typename Iterator>
         Polynomial(Iterator begin, Iterator end) {
             for(auto it = begin; it != end; it++) {
@@ -26,26 +30,26 @@ template<typename T> class Polynomial
             this->degree = this->coefficients.size();
         }
 
-
-
         void Scale(const T scalar) {
             std::vector<T> scaledCoefficients;
             // Use const reference because we are not modifying i.
             // Also use auto&. Could also just use auto i.
-            for(const auto& i : this->coefficients) {
+            /*for(const auto& i : this->coefficients) {
                 auto result = i * scalar;
                 scaledCoefficients.push_back(result);
-            }
-            //std::transform(std::begin(this->coefficients), std::end(this->coefficients), std::begin(scaledCoefficients), std::bind1st(std::multiplies<T>(), scalar));
+            }*/
+            // Use std::transform with a lambda instead of a traditional loop.
+            std::transform(std::begin(this->coefficients), std::end(this->coefficients), std::back_inserter(scaledCoefficients), [&scalar](const T& i) {return i * scalar;});
             this->coefficients = scaledCoefficients;
-        } // OK
+        }
+
         void AddRoot(const T root) {
             std::vector<T> addedRoot {};
             T lastValue{};
             addedRoot.push_back((-this->coefficients[0] * root));
             lastValue = this->coefficients[0];
 
-            for (auto i = 1; i < this->degree; i++) {
+            for (auto& i = 1; i < this->degree; i++) {
                 addedRoot.push_back((lastValue - this->coefficients[i] * root));
                 lastValue = this->coefficients[i];
             }
@@ -53,16 +57,15 @@ template<typename T> class Polynomial
             this->coefficients = addedRoot;
             this->degree = this->coefficients.size();
         }
+
         template<typename Iterator>
         void AddRoots(Iterator begin, Iterator end)
         {
             for(auto it = begin; it != end; it++) {
                 this->AddRoot(*it);
             }
-            //for(const auto& i : roots) {
-            //    this->AddRoot(i);
-            //}
         }
+
         T EvaluatePolynomial(const T x)
         {
             /// Use lambda expressions (Chapter 6, e.g. when computing sums during evaluation of a polynomial; dispatch asynchronous computation).
@@ -77,6 +80,7 @@ template<typename T> class Polynomial
                 result += (this->coefficients[i] * pow(x, i));*/
             return result;
         }
+
         T ComputeDerivative(const T x)
         {
             T sum{};
@@ -91,10 +95,9 @@ template<typename T> class Polynomial
                 i++;
                 p++;
             }
-
-
             return sum;
         }
+
         T ComputeIntegral(const T a, const T b)
         {
             /// Use type traits (see examples in Item 27, e.g. disable or fail assertion for the integration method over integer types).
@@ -120,12 +123,44 @@ template<typename T> class Polynomial
         // Operators
         Polynomial<T> operator+(const Polynomial<T>& rhs) {
             std::vector<T> tmp {};
+
+            // I wish I could use transform on vectors of uneven size, but that doesnt seem to work.
+            auto i1 = std::begin(this->coefficients);
+            auto i2 = std::begin(rhs.coefficients);
             if(degree >= rhs.degree) {
-                transform(this->coefficients.begin(),this->coefficients.end(),rhs.coefficients.begin(),std::back_inserter(tmp),std::plus<T>());
+
+                for(;i1 != std::end(this->coefficients);i1++)
+                {
+                    if(i2 != std::end(rhs.coefficients)) {
+                        tmp.push_back(*i1 + *i2);
+                        i2++;
+                    }
+                    else {
+                        tmp.push_back(*i1 + T{});
+                    }
+                }
             }
             else {
-                transform(rhs.coefficients.begin(),rhs.coefficients.end(),this->coefficients.begin(),std::back_inserter(tmp),std::plus<T>());
+                for(;i2 != std::end(rhs.coefficients);i2++)
+                {
+                    if(i1 != std::end(this->coefficients)) {
+                        tmp.push_back(*i1 + *i2);
+                        i1++;
+                    }
+                    else {
+                        tmp.push_back(*i2 + T{});
+                    }
+                }
             }
+
+
+            /*if(degree >= rhs.degree) {
+                // Could also use std::plus<T> here.
+                transform(std::begin(this->coefficients),std::end(this->coefficients),std::begin(rhs.coefficients),std::back_inserter(tmp),[](T l, T r) { return l + r; });
+            }
+            else {
+                transform(std::begin(rhs.coefficients),std::end(rhs.coefficients),std::begin(this->coefficients),std::back_inserter(tmp),[](T l, T r) { return l + r; });
+            }*/
             Polynomial<T> res {std::begin(tmp), std::end(tmp)};
 
             return res;
@@ -133,11 +168,11 @@ template<typename T> class Polynomial
 
         Polynomial<T> operator*(const Polynomial<T>& rhs) {
             // Initialize vector.
-            const int newDegree = degree + rhs.degree-1;
+            const auto newDegree = degree + rhs.degree-1;
             std::vector<T> tmp(newDegree);
 
             int iCount = 0;
-            for(auto i : coefficients) {
+            for(const auto& i : coefficients) {
                 int jCount = 0;
                 for(const auto& j : rhs.coefficients) {
                     tmp[iCount+jCount] += i * j;
@@ -154,9 +189,9 @@ template<typename T> class Polynomial
         friend std::ostream& operator<<(std::ostream& out, const Polynomial<T>& pol) {
             int index = 0;
             int lastIndex = pol.coefficients.size() - 1;
-            for(const auto& coeff : pol.coefficients)
+            for(const auto& i : pol.coefficients)
             {
-                out << "(" << coeff << "*" << "x^" << index << ")";
+                out << "(" << i << "*" << "x^" << index << ")";
                 if(index != lastIndex) {
                     out << " + ";
                 }
@@ -164,9 +199,6 @@ template<typename T> class Polynomial
             }
             return out;
         }
-        std::vector<T> coefficients;
-        int degree;
-
     protected:
     private:
 };
