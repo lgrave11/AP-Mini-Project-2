@@ -5,15 +5,17 @@
 #include <functional>   // std::plus
 #include <complex>
 #include <iterator>
-#include "src/Polynomial.cpp" // Must include template implementation file.
+#include "include/Polynomial.h" // Must include template implementation file.
 
 int main()
 {
     std::cout << "For int" << std::endl;
     std::vector<int> vec1{5, 3, -1, 2};
     std::vector<int> vec2{5, 3, -1};
-    PolynomialLib::Polynomial<int> bla_int {vec1};
-    PolynomialLib::Polynomial<int> bla2_int {vec2};
+    Polynomial<int> bla0_int {};
+    // Can also use template<Iterator> and std::begin(vec1), std::end(vec1)
+    Polynomial<int> bla_int {std::begin(vec1), std::end(vec1)};
+    Polynomial<int> bla2_int {std::begin(vec2), std::end(vec2)};
     std::cout << bla_int << std::endl;
     // Scale
     //bla_int.Scale(5);
@@ -34,14 +36,14 @@ int main()
     std::cout << "For double" << std::endl;
     std::vector<double> bla_vec{5, 3, -1, 2};
     std::vector<double> bla2_vec{5, 3, -1};
-    PolynomialLib::Polynomial<double> bla_double {bla_vec};
-    PolynomialLib::Polynomial<double> bla2_double {bla2_vec};
+    Polynomial<double> bla_double {std::begin(bla_vec), std::end(bla_vec)};
+    Polynomial<double> bla2_double {std::begin(bla2_vec), std::end(bla2_vec)};
     std::cout << bla_double << std::endl;
     std::cout << bla_double + bla2_double << std::endl;
     std::cout << bla_double * bla_double << std::endl;
     std::cout << bla_double.EvaluatePolynomial(5) << std::endl; // Should be 245
     std::cout << bla_double.ComputeDerivative(5) << std::endl; // Should be 143
-    std::cout << bla_double.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7
+    std::cout << bla_double.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7*/
 
     std::cout << "For complex" << std::endl;
 
@@ -52,12 +54,12 @@ int main()
     std::complex<double> z4{2, 1.0};
 
     std::vector<std::complex<double> > bla_vec_com{z1,z2,z3,z4};
-    PolynomialLib::Polynomial<std::complex<double> > bla {bla_vec_com};
+    Polynomial<std::complex<double> > bla {std::begin(bla_vec_com), std::end(bla_vec_com)};
     std::cout << bla << std::endl;
     std::cout << bla + bla << std::endl;
     std::cout << bla * bla << std::endl;
     std::cout << bla.EvaluatePolynomial(5) << std::endl; // Should be 245
     std::cout << bla.ComputeDerivative(5) << std::endl; // Should be 143
-    std::cout << bla.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7*/
+    std::cout << bla.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7
     return 0;
 }

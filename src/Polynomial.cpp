@@ -1,9 +1,11 @@
-#include "Polynomial.h"
+//#include "../include/Polynomial.h"
 #include <algorithm>
 #include <math.h>
 #include <type_traits>
 #include <iterator>
 #include <array>
+#include <vector>
+#include <typeinfo>
 
 namespace PolynomialLib {
     // a
@@ -15,13 +17,18 @@ namespace PolynomialLib {
     // b
     // F.eks: [5,3,-1,2] = p(x) = (5 * x^0) + (3 * x^1) + (-1 * x^2) + (2 * x^3)
     template<typename T>
-    template<typename Container>
-    Polynomial<T>::Polynomial(Container& coeffs)
+    Polynomial<T>::Polynomial(std::vector<T> coeffs)
     {
-        this->degree = coeffs.size();
+        //for(auto it = std::begin(coeffs); it != std::end(coeffs); it++) {
+        //    this->coefficients.emplace_back(*it);
+        //}
         for(const auto& item : coeffs) {
             this->coefficients.push_back(item);
         }
+        /*for (auto it = std::cbegin(coeffs); it != std::cend(coeffs); it++){
+            this->coefficients.emplace_back(*it);
+        }*/
+        this->degree = this->coefficients.size();
     }
 
     template<typename T>
@@ -65,8 +72,7 @@ namespace PolynomialLib {
 
     // e
     template<typename T>
-    template<typename Container>
-    void Polynomial<T>::AddRoots(const Container& roots)
+    void Polynomial<T>::AddRoots(std::vector<T> roots)
     {
         for(const auto& i : roots) {
             this->AddRoot(i);
@@ -137,14 +143,16 @@ namespace PolynomialLib {
 
     template<typename T>
     Polynomial<T> Polynomial<T>::operator+(const Polynomial<T>& rhs) {
-        std::vector<T> result {};
-        if(degree >= rhs.degree) {
-            transform(coefficients.begin(),coefficients.end(),rhs.coefficients.begin(),std::back_inserter(result),std::plus<T>());
-        }
-        else {
-            transform(rhs.coefficients.begin(),rhs.coefficients.end(),coefficients.begin(),std::back_inserter(result),std::plus<T>());
-        }
-        Polynomial<T> res {result};
+        std::vector<T> tmp {};
+        //if(degree >= rhs.degree) {
+        //    transform(this->coefficients.begin(),this->coefficients.end(),rhs.coefficients.begin(),std::back_inserter(tmp),std::plus<T>());
+        //}
+        //else {
+        //    transform(rhs.coefficients.begin(),rhs.coefficients.end(),this->coefficients.begin(),std::back_inserter(tmp),std::plus<T>());
+        //}
+        Polynomial<T> res {};
+        //res.coefficients = tmp;
+        //res.degree = tmp.size();
 
         return res;
     }
