@@ -122,10 +122,25 @@ template<typename T> class Polynomial
 
         // Operators
         Polynomial<T> operator+(const Polynomial<T>& rhs) {
-            std::vector<T> tmp {};
+            std::vector<T> tmp;
+            std::vector<T> result;
+
+            if(this->degree >= rhs.degree) {
+                tmp = rhs.coefficients;
+                tmp.insert(tmp.end(),this->degree - rhs.degree, T{});
+                // Could also use std::plus<T> here.
+                transform(std::begin(this->coefficients),std::end(this->coefficients),std::begin(tmp),std::back_inserter(result),[](T l, T r) { return l + r; });
+            }
+            else {
+                tmp = this->coefficients;
+                tmp.insert(tmp.end(), rhs.degree - this->degree, T{});
+                transform(std::begin(rhs.coefficients),std::end(rhs.coefficients),std::begin(tmp),std::back_inserter(result),[](T l, T r) { return l + r; });
+            }
+
+
 
             // I wish I could use transform on vectors of uneven size, but that doesnt seem to work.
-            auto i1 = std::begin(this->coefficients);
+            /*auto i1 = std::begin(this->coefficients);
             auto i2 = std::begin(rhs.coefficients);
             if(degree >= rhs.degree) {
 
@@ -151,7 +166,7 @@ template<typename T> class Polynomial
                         tmp.push_back(*i2 + T{});
                     }
                 }
-            }
+            }*/
 
 
             /*if(degree >= rhs.degree) {
@@ -161,7 +176,7 @@ template<typename T> class Polynomial
             else {
                 transform(std::begin(rhs.coefficients),std::end(rhs.coefficients),std::begin(this->coefficients),std::back_inserter(tmp),[](T l, T r) { return l + r; });
             }*/
-            Polynomial<T> res {std::begin(tmp), std::end(tmp)};
+            Polynomial<T> res {std::begin(result), std::end(result)};
 
             return res;
         }

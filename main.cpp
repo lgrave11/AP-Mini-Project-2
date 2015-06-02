@@ -28,6 +28,7 @@ int main()
     //bla_int.AddRoots(vec3);
     //std::cout << bla_int << std::endl;
     std::cout << bla_int + bla2_int << std::endl;
+    std::cout << bla2_int + bla_int << std::endl;
     std::cout << bla_int * bla_int << std::endl;
     std::cout << bla_int.EvaluatePolynomial(5) << std::endl; // Should be 245
     std::cout << bla_int.ComputeDerivative(5) << std::endl; // Should be 143
