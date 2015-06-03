@@ -42,7 +42,7 @@ template<typename T> class Polynomial
                 auto result = i * scalar;
                 scaledCoefficients.push_back(result);
             }*/
-            /// Use std::transform with a lambda instead of a traditional loop.
+            /// Use std::transform with a lambda instead of a traditional loop. Requirement 9: Use lambda expressions.
             std::transform(std::begin(this->coefficients), std::end(this->coefficients), std::back_inserter(scaledCoefficients), [&scalar](const T& i) {return i * scalar;});
             this->coefficients = scaledCoefficients;
         }
@@ -106,7 +106,7 @@ template<typename T> class Polynomial
 
         T ComputeIntegral(const T a, const T b)
         {
-            /// Use type traits (see examples in Item 27, e.g. disable or fail assertion for the integration method over integer types).
+            /// Requirement 8: Use type traits (see examples in Item 27, e.g. disable or fail assertion for the integration method over integer types).
             // Alternatively I could have used enable_if here (std::enable_if_t<!std::is_integral<T>::value, T>).
             static_assert(!std::is_integral<T>::value,"ComputeIntegral is not supported for int types.");
             T left {};
