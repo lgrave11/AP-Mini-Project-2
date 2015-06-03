@@ -20,9 +20,9 @@ template<typename T> class Polynomial
         Polynomial& operator= (Polynomial<T>&& oPoly); // Move assignment operator.
         //Polynomial& operator= (const Polynomial<T>& oPoly); // Copy assignment operator.
         //
-        template<typename Iterator>
-        Polynomial(Iterator begin, Iterator end) {
-            for(auto it = begin; it != end; it++) {
+        template<typename Container>
+        Polynomial(Container& c) {
+            for(auto it = std::begin(c); it != std::end(c); it++) {
             //for(const auto& item : coeffs) {
                 this->coefficients.emplace_back(*it);
                 //this->coefficients.push_back(item);
@@ -58,10 +58,10 @@ template<typename T> class Polynomial
             this->degree = this->coefficients.size();
         }
 
-        template<typename Iterator>
-        void AddRoots(Iterator begin, Iterator end)
+        template<typename Container>
+        void AddRoots(Container& c)
         {
-            for(auto it = begin; it != end; it++) {
+            for(auto it = std::begin(c); it != std::end(c); it++) {
                 this->AddRoot(*it);
             }
         }
@@ -176,7 +176,7 @@ template<typename T> class Polynomial
             else {
                 transform(std::begin(rhs.coefficients),std::end(rhs.coefficients),std::begin(this->coefficients),std::back_inserter(tmp),[](T l, T r) { return l + r; });
             }*/
-            Polynomial<T> res {std::begin(result), std::end(result)};
+            Polynomial<T> res {result};
 
             return res;
         }
@@ -196,7 +196,7 @@ template<typename T> class Polynomial
                 iCount++;
             }
 
-            Polynomial<T> res {std::begin(tmp), std::end(tmp)};
+            Polynomial<T> res {tmp};
 
             return res;
         }

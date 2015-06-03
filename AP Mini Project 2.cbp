@@ -37,7 +37,6 @@
 		</Compiler>
 		<Unit filename="include/Polynomial.h" />
 		<Unit filename="main.cpp" />
-		<Unit filename="src/Polynomial.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />
