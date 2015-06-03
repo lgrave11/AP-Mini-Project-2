@@ -13,15 +13,18 @@ template<typename T> class Polynomial
         std::vector<T> coefficients;
         int degree;
 
-        Polynomial() {}
+        Polynomial() : coefficients({}), degree{} {}
         virtual ~Polynomial() {}
         Polynomial(const Polynomial<T>& oPoly) : coefficients(oPoly.coefficients), degree(oPoly.degree) {} // Copy constructor
         Polynomial(Polynomial<T>&& oPoly); // Move constructor
         Polynomial& operator= (Polynomial<T>&& oPoly); // Move assignment operator.
         //Polynomial& operator= (const Polynomial<T>& oPoly); // Copy assignment operator.
-        //
-        template<typename Container>
-        Polynomial(Container& c) {
+
+        // Following requirement 5 here and with AddRoots to accept any container. Including array types.
+        // Also support braced initializers by giving a hint to the compiler that the Container is a std::initializer_list
+        template<typename Container = std::initializer_list<T>>
+        Polynomial(const Container& c) {
+            // Following requirement 3, to use auto where applicable.
             for(auto it = std::begin(c); it != std::end(c); it++) {
             //for(const auto& item : coeffs) {
                 this->coefficients.emplace_back(*it);
@@ -30,6 +33,7 @@ template<typename T> class Polynomial
             this->degree = this->coefficients.size();
         }
 
+        // Following requirement 4 to use const.
         void Scale(const T scalar) {
             std::vector<T> scaledCoefficients;
             // Use const reference because we are not modifying i.
@@ -38,7 +42,7 @@ template<typename T> class Polynomial
                 auto result = i * scalar;
                 scaledCoefficients.push_back(result);
             }*/
-            // Use std::transform with a lambda instead of a traditional loop.
+            /// Use std::transform with a lambda instead of a traditional loop.
             std::transform(std::begin(this->coefficients), std::end(this->coefficients), std::back_inserter(scaledCoefficients), [&scalar](const T& i) {return i * scalar;});
             this->coefficients = scaledCoefficients;
         }
@@ -49,7 +53,7 @@ template<typename T> class Polynomial
             addedRoot.push_back((-this->coefficients[0] * root));
             lastValue = this->coefficients[0];
 
-            for (auto& i = 1; i < this->degree; i++) {
+            for (auto i = 1; i < this->degree; i++) {
                 addedRoot.push_back((lastValue - this->coefficients[i] * root));
                 lastValue = this->coefficients[i];
             }
@@ -58,8 +62,8 @@ template<typename T> class Polynomial
             this->degree = this->coefficients.size();
         }
 
-        template<typename Container>
-        void AddRoots(Container& c)
+        template<typename Container = std::initializer_list<T>>
+        void AddRoots(const Container& c)
         {
             for(auto it = std::begin(c); it != std::end(c); it++) {
                 this->AddRoot(*it);
@@ -72,10 +76,12 @@ template<typename T> class Polynomial
             T result{};
 
             auto i = 0;
+
             // Use non-member begin and end for making it more generic.
-            // Capture everything, because we need most of everything.
+            // Capture everything by memory as we want to write it..
             std::for_each(std::begin(this->coefficients),std::end(this->coefficients),[&](T n){ result += (n * pow(x, i)); i++; });
-            // Alternative could have used an ordinary for loop:
+
+            /// Alternatively I could have used an ordinary for loop:
             /*for (auto i = 0; i < this->degree; i++)
                 result += (this->coefficients[i] * pow(x, i));*/
             return result;
