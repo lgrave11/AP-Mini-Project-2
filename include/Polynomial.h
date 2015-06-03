@@ -4,10 +4,15 @@
 #include <vector>
 #include <iostream>
 #include <initializer_list>
+#include <unordered_map>
+#include <mutex>
+#include <sstream>
+#include <memory>
 
 // T = valuetype, e.g double, int or complex
 // C = container type, e.g array, vector or whatever. Just the iterator.
-template<typename T> class Polynomial
+template<typename T>
+class Polynomial
 {
     public:
         std::vector<T> coefficients;
@@ -45,6 +50,9 @@ template<typename T> class Polynomial
             /// Use std::transform with a lambda instead of a traditional loop. Requirement 9: Use lambda expressions.
             std::transform(std::begin(this->coefficients), std::end(this->coefficients), std::back_inserter(scaledCoefficients), [&scalar](const T& i) {return i * scalar;});
             this->coefficients = scaledCoefficients;
+            this->integral->coefficients.clear();
+            this->integral->degree = 0;
+            this->cacheValid = false;
         }
 
         void AddRoot(const T root) {
@@ -59,7 +67,10 @@ template<typename T> class Polynomial
             }
             addedRoot.push_back(lastValue);
             this->coefficients = addedRoot;
-            this->degree = this->coefficients.size();
+
+            this->integral->coefficients.clear();
+            this->integral->degree = 0;
+            this->cacheValid = false;
         }
 
         template<typename Container = std::initializer_list<T>>
@@ -70,7 +81,7 @@ template<typename T> class Polynomial
             }
         }
 
-        T EvaluatePolynomial(const T x)
+        T EvaluatePolynomial(const T x) const
         {
             /// Use lambda expressions (Chapter 6, e.g. when computing sums during evaluation of a polynomial; dispatch asynchronous computation).
             T result{};
@@ -87,7 +98,7 @@ template<typename T> class Polynomial
             return result;
         }
 
-        T ComputeDerivative(const T x)
+        T ComputeDerivative(const T x) const
         {
             T sum{};
             double p = 1;
@@ -104,30 +115,62 @@ template<typename T> class Polynomial
             return sum;
         }
 
-        T ComputeIntegral(const T a, const T b)
+        /*void integralCache() {
+            std::vector<T> results;
+            for(auto i = 0; i < this->degree; i++) {
+                results.push_back(this->coefficients[i] / (i+1));
+            }
+            this->integral = std::unique_ptr<Polynomial>{ new Polynomial{results} };;
+        }
+
+        T ComputeIntegral(const T a, const T b) {
+            /// Requirement 8: Use type traits (see examples in Item 27, e.g. disable or fail assertion for the integration method over integer types).
+            // Alternatively I could have used enable_if here (std::enable_if_t<!std::is_integral<T>::value, T>).
+            static_assert(!std::is_integral<T>::value,"ComputeIntegral is not supported for integer types.");
+
+            //std::lock_guard<std::mutex> g(m);
+            if(cacheValid == false) {
+                integralCache();
+                cacheValid = true;
+            }
+            std::cout << *this->integral << std::endl;
+            return this->integral->EvaluatePolynomial(b) - this->integral->EvaluatePolynomial(a);
+        }*/
+        T getIntegralValue(const T val) const
+        {
+            // Using string as a key temporarily because complex is not easy to map, because it doesnt have a operator> or std::hash implemented so map and unorderedmap are both out.
+            std::string key = std::to_string(val);
+            T result {};
+            std::lock_guard<std::mutex> g(m);
+            if((integralCache.find(key) != integralCache.end()))
+            {
+                result = integralCache[key];
+            }
+            else {
+                for (auto i=0.0; i < this->degree; i++)
+                {
+                    result += (this->coefficients[i] / (i+1)) * pow(val, i+1);
+                }
+                integralCache[key] = result;
+            }
+            return result;
+        }
+
+        T ComputeIntegral(const T a, const T b) const
         {
             /// Requirement 8: Use type traits (see examples in Item 27, e.g. disable or fail assertion for the integration method over integer types).
             // Alternatively I could have used enable_if here (std::enable_if_t<!std::is_integral<T>::value, T>).
-            static_assert(!std::is_integral<T>::value,"ComputeIntegral is not supported for int types.");
-            T left {};
-            T right {};
-            for (auto i=0.0; i < this->degree; i++)
-            {
-                //std::cout << "((" << this->coefficients[i] << "/" << (i+1) << ") * " << b << "^" << (i+1) << ")" << std::endl;
-                left += (this->coefficients[i] / (i+1)) * pow(b, i+1);
-            }
-            //std::cout << std::endl;
-            for (auto i=0.0; i < this->degree; i++)
-            {
-                //std::cout << "((" << this->coefficients[i] << "/" << (i+1) << ") * " << a << "^" << (i+1) << ")" << std::endl;
-                right += (this->coefficients[i] / (i+1)) * pow(a, i+1);
-            }
+            static_assert(!std::is_integral<T>::value,"ComputeIntegral is not supported for integer types.");
+            T left = getIntegralValue(b);
+            T right = getIntegralValue(a);
 
             return left - right;
         }
 
+
+
         // Operators
-        Polynomial<T> operator+(const Polynomial<T>& rhs) {
+        Polynomial<T> operator+(const Polynomial<T>& rhs) const {
             std::vector<T> tmp;
             std::vector<T> result;
 
@@ -187,7 +230,7 @@ template<typename T> class Polynomial
             return res;
         }
 
-        Polynomial<T> operator*(const Polynomial<T>& rhs) {
+        Polynomial<T> operator*(const Polynomial<T>& rhs) const {
             // Initialize vector.
             const auto newDegree = degree + rhs.degree-1;
             std::vector<T> tmp(newDegree);
@@ -222,6 +265,11 @@ template<typename T> class Polynomial
         }
     protected:
     private:
+        mutable std::mutex m;
+        mutable bool cacheValid = false;
+        //std::unique_ptr<Polynomial<T> > integral {};
+        //Polynomial integral {};
+        mutable std::unordered_map<std::string, T> integralCache{};
 };
 
 

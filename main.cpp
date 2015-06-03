@@ -5,6 +5,7 @@
 #include <functional>   // std::plus
 #include <complex>
 #include <iterator>
+#include <time.h>
 #include "include/Polynomial.h" // Must include template implementation file.
 
 int main()
@@ -52,9 +53,19 @@ int main()
     std::cout << bla_double * bla_double << std::endl;
     std::cout << bla_double.EvaluatePolynomial(5) << std::endl; // Should be 245
     std::cout << bla_double.ComputeDerivative(5) << std::endl; // Should be 143
+    //clock_t t1,t2;
+    //t1=clock();
+    //for(int i = 0; i < 10000; i++) {
     std::cout << bla_double.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7
+    //}
+    //t2=clock();
+    //float diff ((float)t2-(float)t1);
+    //std::cout<<diff<<std::endl;
 
-    std::cout << "For complex" << std::endl;
+
+
+
+    /*std::cout << "For complex" << std::endl;
 
     // (5.0+1i) * x^0) + ((3.0+1i) * x^1) + ((-1.0+1i) * x^2) + ((2.0+1i) * x^3)
     std::complex<double> z1{5.0, 1.0};
@@ -69,6 +80,6 @@ int main()
     std::cout << bla * bla << std::endl;
     std::cout << bla.EvaluatePolynomial(5) << std::endl; // Should be 245
     std::cout << bla.ComputeDerivative(5) << std::endl; // Should be 143
-    std::cout << bla.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7
+    std::cout << bla.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7*/
     return 0;
 }
