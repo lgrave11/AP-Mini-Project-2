@@ -115,8 +115,9 @@ class Polynomial
             return sum;
         }
 
-        /*void integralCache() {
+        void integralCache() {
             std::vector<T> results;
+            results.push_back(0);
             for(auto i = 0; i < this->degree; i++) {
                 results.push_back(this->coefficients[i] / (i+1));
             }
@@ -135,8 +136,8 @@ class Polynomial
             }
             std::cout << *this->integral << std::endl;
             return this->integral->EvaluatePolynomial(b) - this->integral->EvaluatePolynomial(a);
-        }*/
-        T getIntegralValue(const T val) const
+        }
+        /*T getIntegralValue(const T val) const
         {
             // Using string as a key temporarily because complex is not easy to map, because it doesnt have a operator> or std::hash implemented so map and unorderedmap are both out.
             std::string key = std::to_string(val);
@@ -165,7 +166,7 @@ class Polynomial
             T right = getIntegralValue(a);
 
             return left - right;
-        }
+        }*/
 
 
 
@@ -267,9 +268,9 @@ class Polynomial
     private:
         mutable std::mutex m;
         mutable bool cacheValid = false;
-        //std::unique_ptr<Polynomial<T> > integral {};
+        std::unique_ptr<Polynomial<T> > integral {};
         //Polynomial integral {};
-        mutable std::unordered_map<std::string, T> integralCache{};
+        //mutable std::unordered_map<std::string, T> integralCache{};
 };
 
 
