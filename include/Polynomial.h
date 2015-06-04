@@ -17,7 +17,7 @@ class Polynomial
     public:
         std::vector<T> coefficients;
 
-        Polynomial() : coefficients({}) {}
+        Polynomial() : coefficients { std::vector<T> {0} } { }
         virtual ~Polynomial() {}
         Polynomial(const Polynomial<T>& oPoly) = delete; // Copy constructor
         Polynomial& operator= (const Polynomial<T>& oPoly) = delete; // Copy assignment operator.
