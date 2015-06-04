@@ -19,16 +19,16 @@ class Polynomial
 
         Polynomial() : coefficients({}) {}
         virtual ~Polynomial() {}
-        Polynomial(const Polynomial<T>& oPoly) : coefficients(oPoly.coefficients) {} // Copy constructor'
-        Polynomial& operator= (const Polynomial<T>& oPoly); // Copy assignment operator.
+        Polynomial(const Polynomial<T>& oPoly) = delete; // Copy constructor
+        Polynomial& operator= (const Polynomial<T>& oPoly) = delete; // Copy assignment operator.
         Polynomial(Polynomial<T>&& oPoly); // Move constructor
         Polynomial& operator= (Polynomial<T>&& oPoly); // Move assignment operator.
 
         // Following requirement 5 here and with AddRoots to accept any container. Including array types.
         template<typename Container>
-        Polynomial(const Container& c) {
+        Polynomial(const Container& c) : coefficients { std::vector<T> {} } {
             // Following requirement 3, to use auto where applicable.
-            for(auto it = std::begin(c); it != std::end(c); it++) {
+            for(auto it = std::cbegin(c); it != std::cend(c); it++) {
                 this->coefficients.emplace_back(*it);
             }
         }
@@ -97,9 +97,27 @@ class Polynomial
             return result;
         }
 
-        T ComputeDerivative(const T x) const
+        // (1 * c1 * x^0) + (2 * c2 * x^1) + (3 * c3 * x^2) + ... + (n * cn * x^(n-1))
+        Polynomial ComputeDerivative() const
         {
-            T sum{};
+            Polynomial ret {};
+            // Shortcut if polynomial is constant
+            ret.coefficients.clear();
+            double p = 1;
+            int counter = 0;
+            double i = 0;
+            for(const auto& c : this->coefficients) {
+                if(counter++ == 0) {
+                    continue;
+                }
+                ret.coefficients.push_back(p * c);
+                i++;
+                p++;
+            }
+            return ret;
+
+
+            /*T sum{};
             double p = 1;
             int counter = 0;
             double i = 0;
@@ -111,7 +129,7 @@ class Polynomial
                 i++;
                 p++;
             }
-            return sum;
+            return sum;*/
         }
 
         /// 6. Cache the integral data to avoid repetitive integration (Items 16, 40). Make it thread-safe.
@@ -136,38 +154,6 @@ class Polynomial
             }
             return this->integral->EvaluatePolynomial(b) - this->integral->EvaluatePolynomial(a);
         }
-        /*T getIntegralValue(const T val) const
-        {
-            // Using string as a key temporarily because complex is not easy to map, because it doesnt have a operator> or std::hash implemented so map and unorderedmap are both out.
-            std::string key = std::to_string(val);
-            T result {};
-            std::lock_guard<std::mutex> g(m);
-            if((integralCache.find(key) != integralCache.end()))
-            {
-                result = integralCache[key];
-            }
-            else {
-                for (auto i=0.0; i < this->coefficients.size(); i++)
-                {
-                    result += (this->coefficients[i] / (i+1)) * pow(val, i+1);
-                }
-                integralCache[key] = result;
-            }
-            return result;
-        }
-
-        T ComputeIntegral(const T a, const T b) const
-        {
-            /// Requirement 8: Use type traits (see examples in Item 27, e.g. disable or fail assertion for the integration method over integer types).
-            // Alternatively I could have used enable_if here (std::enable_if_t<!std::is_integral<T>::value, T>).
-            static_assert(!std::is_integral<T>::value,"ComputeIntegral is not supported for integer types.");
-            T left = getIntegralValue(b);
-            T right = getIntegralValue(a);
-
-            return left - right;
-        }*/
-
-
 
         // Operators
         Polynomial<T> operator+(const Polynomial<T>& rhs) const {
@@ -186,45 +172,6 @@ class Polynomial
                 transform(std::begin(rhs.coefficients),std::end(rhs.coefficients),std::begin(tmp),std::back_inserter(result),[](T l, T r) { return l + r; });
             }
 
-
-
-            // I wish I could use transform on vectors of uneven size, but that doesnt seem to work.
-            /*auto i1 = std::begin(this->coefficients);
-            auto i2 = std::begin(rhs.coefficients);
-            if(this->coefficients.size() >= rhs.coefficients.size()) {
-
-                for(;i1 != std::end(this->coefficients);i1++)
-                {
-                    if(i2 != std::end(rhs.coefficients)) {
-                        tmp.push_back(*i1 + *i2);
-                        i2++;
-                    }
-                    else {
-                        tmp.push_back(*i1 + T{});
-                    }
-                }
-            }
-            else {
-                for(;i2 != std::end(rhs.coefficients);i2++)
-                {
-                    if(i1 != std::end(this->coefficients)) {
-                        tmp.push_back(*i1 + *i2);
-                        i1++;
-                    }
-                    else {
-                        tmp.push_back(*i2 + T{});
-                    }
-                }
-            }*/
-
-
-            /*if(this->coefficients.size() >= rhs.coefficients.size()) {
-                // Could also use std::plus<T> here.
-                transform(std::begin(this->coefficients),std::end(this->coefficients),std::begin(rhs.coefficients),std::back_inserter(tmp),[](T l, T r) { return l + r; });
-            }
-            else {
-                transform(std::begin(rhs.coefficients),std::end(rhs.coefficients),std::begin(this->coefficients),std::back_inserter(tmp),[](T l, T r) { return l + r; });
-            }*/
             Polynomial<T> res {result};
 
             return res;
@@ -268,8 +215,7 @@ class Polynomial
         //mutable std::mutex m;
         mutable bool cacheValid = false;
         std::unique_ptr<Polynomial<T> > integral {};
-        //Polynomial integral {};
-        //mutable std::unordered_map<std::string, T> integralCache{};
+        std::unique_ptr<Polynomial<T> > derivative {};
 };
 
 

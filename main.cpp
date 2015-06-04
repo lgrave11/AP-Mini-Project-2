@@ -28,8 +28,8 @@ int main()
     //bla_int.AddRoot(5);
     //std::cout << "AddRoot(5): " << bla_int << std::endl;
     // Add roots
-    std::vector<int> vec3{5, 5, 5};
-    bla_int.AddRoots({5, 5, 5});
+    //std::vector<int> vec3{5, 5, 5};
+    //bla_int.AddRoots({5, 5, 5});
     //std::cout << "AddRoots({5,5,5}): " << bla_int << std::endl;
     std::cout << "Addition: ";
     std::cout << bla_int + bla2_int << std::endl;
@@ -40,7 +40,8 @@ int main()
     std::cout << "EvaluatePolynomial(5): ";
     std::cout << bla_int.EvaluatePolynomial(5) << std::endl; // Should be 245
     std::cout << "ComputeDerivative(5): ";
-    std::cout << bla_int.ComputeDerivative(5) << std::endl; // Should be 143
+    Polynomial<int> testBlah = bla_int.ComputeDerivative();
+    std::cout << testBlah.EvaluatePolynomial(5) << std::endl; // Should be 143
     //std::cout << bla_int.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7
 
     std::cout << "For double" << std::endl;
@@ -52,7 +53,8 @@ int main()
     std::cout << bla_double + bla2_double << std::endl;
     std::cout << bla_double * bla_double << std::endl;
     std::cout << bla_double.EvaluatePolynomial(5) << std::endl; // Should be 245
-    std::cout << bla_double.ComputeDerivative(5) << std::endl; // Should be 143
+    Polynomial<double> testBlah2 = bla_double.ComputeDerivative();
+    std::cout << testBlah2.EvaluatePolynomial(5) << std::endl; // Should be 143
     std::cout << bla_double.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7
 
     std::cout << "For complex" << std::endl;
@@ -69,7 +71,8 @@ int main()
     std::cout << bla + bla << std::endl;
     std::cout << bla * bla << std::endl;
     std::cout << bla.EvaluatePolynomial(5) << std::endl; // Should be 245
-    std::cout << bla.ComputeDerivative(5) << std::endl; // Should be 143
+    Polynomial<std::complex<double> > testBlah3 = bla.ComputeDerivative();
+    std::cout << testBlah3.EvaluatePolynomial(5) << std::endl; // Should be 143
     std::cout << bla.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7
     return 0;
 }
