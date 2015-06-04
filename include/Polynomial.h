@@ -16,28 +16,27 @@ class Polynomial
 {
     public:
         std::vector<T> coefficients;
-        int degree;
 
-        Polynomial() : coefficients({}), degree{} {}
+        Polynomial() : coefficients({}) {}
         virtual ~Polynomial() {}
-        Polynomial(const Polynomial<T>& oPoly) : coefficients(oPoly.coefficients), degree(oPoly.degree) {} // Copy constructor'
+        Polynomial(const Polynomial<T>& oPoly) : coefficients(oPoly.coefficients) {} // Copy constructor'
         Polynomial& operator= (const Polynomial<T>& oPoly); // Copy assignment operator.
         Polynomial(Polynomial<T>&& oPoly); // Move constructor
         Polynomial& operator= (Polynomial<T>&& oPoly); // Move assignment operator.
 
         // Following requirement 5 here and with AddRoots to accept any container. Including array types.
-        // Also support braced initializers by giving a hint to the compiler that the Container is a std::initializer_list
         template<typename Container>
         Polynomial(const Container& c) {
             // Following requirement 3, to use auto where applicable.
             for(auto it = std::begin(c); it != std::end(c); it++) {
                 this->coefficients.emplace_back(*it);
             }
-            this->degree = this->coefficients.size();
         }
 
-        // Support brace initialization using delegating constructor.
-        Polynomial(const std::initializer_list<T> c) : Polynomial{ std::vector<T> {c} } {}
+        // Support brace initialization using constructor forwarding.
+        //Polynomial(const std::initializer_list<T> c) : Polynomial{ std::vector<T> {c} } {}
+        // Support brace initialization with a regular constructor.
+        Polynomial(const std::initializer_list<T> c) : coefficients{ std::vector<T> {c} } {}
 
         // Following requirement 4 to use const.
         void Scale(const T scalar) {
@@ -53,7 +52,6 @@ class Polynomial
             std::transform(std::begin(this->coefficients), std::end(this->coefficients), std::back_inserter(scaledCoefficients), [&scalar](const T& i) {return i * scalar;});
             this->coefficients = scaledCoefficients;
             this->integral->coefficients.clear();
-            this->integral->degree = 0;
             this->cacheValid = false;
         }
 
@@ -64,7 +62,7 @@ class Polynomial
             addedRoot.push_back((-this->coefficients[0] * root));
             lastValue = this->coefficients[0];
 
-            for (auto i = 1; i < this->degree; i++) {
+            for (auto i = 1; i < this->coefficients.size(); i++) {
                 addedRoot.push_back((lastValue - this->coefficients[i] * root));
                 lastValue = this->coefficients[i];
             }
@@ -72,7 +70,6 @@ class Polynomial
             this->coefficients = addedRoot;
 
             this->integral->coefficients.clear();
-            this->integral->degree = 0;
             this->cacheValid = false;
         }
 
@@ -96,7 +93,7 @@ class Polynomial
             std::for_each(std::begin(this->coefficients),std::end(this->coefficients),[&](T n){ result += (n * pow(x, i)); i++; });
 
             /// Alternatively I could have used an ordinary for loop:
-            /*for (auto i = 0; i < this->degree; i++)
+            /*for (auto i = 0; i < this->coefficients.size(); i++)
                 result += (this->coefficients[i] * pow(x, i));*/
             return result;
         }
@@ -122,7 +119,7 @@ class Polynomial
         void integralCache() {
             std::vector<T> results;
             results.push_back(0);
-            for(auto i = 0; i < this->degree; i++) {
+            for(auto i = 0.0; i < this->coefficients.size(); i++) {
                 results.push_back(this->coefficients[i] / (i+1));
             }
             this->integral = std::unique_ptr<Polynomial>{ new Polynomial{results} };;
@@ -138,7 +135,6 @@ class Polynomial
                 integralCache();
                 cacheValid = true;
             }
-            std::cout << *this->integral << std::endl;
             return this->integral->EvaluatePolynomial(b) - this->integral->EvaluatePolynomial(a);
         }
         /*T getIntegralValue(const T val) const
@@ -152,7 +148,7 @@ class Polynomial
                 result = integralCache[key];
             }
             else {
-                for (auto i=0.0; i < this->degree; i++)
+                for (auto i=0.0; i < this->coefficients.size(); i++)
                 {
                     result += (this->coefficients[i] / (i+1)) * pow(val, i+1);
                 }
@@ -179,15 +175,15 @@ class Polynomial
             std::vector<T> tmp;
             std::vector<T> result;
 
-            if(this->degree >= rhs.degree) {
+            if(this->coefficients.size() >= rhs.coefficients.size()) {
                 tmp = rhs.coefficients;
-                tmp.insert(tmp.end(),this->degree - rhs.degree, T{});
+                tmp.insert(tmp.end(),this->coefficients.size() - rhs.coefficients.size(), T{});
                 // Could also use std::plus<T> here.
                 transform(std::begin(this->coefficients),std::end(this->coefficients),std::begin(tmp),std::back_inserter(result),[](T l, T r) { return l + r; });
             }
             else {
                 tmp = this->coefficients;
-                tmp.insert(tmp.end(), rhs.degree - this->degree, T{});
+                tmp.insert(tmp.end(), rhs.coefficients.size() - this->coefficients.size(), T{});
                 transform(std::begin(rhs.coefficients),std::end(rhs.coefficients),std::begin(tmp),std::back_inserter(result),[](T l, T r) { return l + r; });
             }
 
@@ -196,7 +192,7 @@ class Polynomial
             // I wish I could use transform on vectors of uneven size, but that doesnt seem to work.
             /*auto i1 = std::begin(this->coefficients);
             auto i2 = std::begin(rhs.coefficients);
-            if(degree >= rhs.degree) {
+            if(this->coefficients.size() >= rhs.coefficients.size()) {
 
                 for(;i1 != std::end(this->coefficients);i1++)
                 {
@@ -223,7 +219,7 @@ class Polynomial
             }*/
 
 
-            /*if(degree >= rhs.degree) {
+            /*if(this->coefficients.size() >= rhs.coefficients.size()) {
                 // Could also use std::plus<T> here.
                 transform(std::begin(this->coefficients),std::end(this->coefficients),std::begin(rhs.coefficients),std::back_inserter(tmp),[](T l, T r) { return l + r; });
             }
@@ -237,11 +233,11 @@ class Polynomial
 
         Polynomial<T> operator*(const Polynomial<T>& rhs) const {
             // Initialize vector.
-            const auto newDegree = degree + rhs.degree-1;
+            const auto newDegree = this->coefficients.size() + rhs.coefficients.size()-1;
             std::vector<T> tmp(newDegree);
 
             int iCount = 0;
-            for(const auto& i : coefficients) {
+            for(const auto& i : this->coefficients) {
                 int jCount = 0;
                 for(const auto& j : rhs.coefficients) {
                     tmp[iCount+jCount] += i * j;

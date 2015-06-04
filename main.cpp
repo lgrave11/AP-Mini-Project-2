@@ -16,7 +16,7 @@ int main()
     std::vector<int> vec2{5, 3, -1};
     Polynomial<int> bla0_int {};
     // Can also use template<Iterator> and std::begin(vec1), std::end(vec1)
-    Polynomial<int> bla3_int {{5,3,-1,2}};
+    Polynomial<int> bla3_int {5,3,-1,2};
     Polynomial<int> bla1_int {vec0};
     Polynomial<int> bla_int {vec1};
     Polynomial<int> bla2_int {vec2};
@@ -53,19 +53,9 @@ int main()
     std::cout << bla_double * bla_double << std::endl;
     std::cout << bla_double.EvaluatePolynomial(5) << std::endl; // Should be 245
     std::cout << bla_double.ComputeDerivative(5) << std::endl; // Should be 143
-    //clock_t t1,t2;
-    //t1=clock();
-    //for(int i = 0; i < 10000; i++) {
     std::cout << bla_double.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7
-    //}
-    //t2=clock();
-    //float diff ((float)t2-(float)t1);
-    //std::cout<<diff<<std::endl;
 
-
-
-
-    /*std::cout << "For complex" << std::endl;
+    std::cout << "For complex" << std::endl;
 
     // (5.0+1i) * x^0) + ((3.0+1i) * x^1) + ((-1.0+1i) * x^2) + ((2.0+1i) * x^3)
     std::complex<double> z1{5.0, 1.0};
@@ -80,6 +70,6 @@ int main()
     std::cout << bla * bla << std::endl;
     std::cout << bla.EvaluatePolynomial(5) << std::endl; // Should be 245
     std::cout << bla.ComputeDerivative(5) << std::endl; // Should be 143
-    std::cout << bla.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7*/
+    std::cout << bla.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7
     return 0;
 }
