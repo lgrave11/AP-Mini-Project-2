@@ -51,7 +51,7 @@ class Polynomial
             /// Use std::transform with a lambda instead of a traditional loop. Requirement 9: Use lambda expressions.
             std::transform(std::begin(this->coefficients), std::end(this->coefficients), std::back_inserter(scaledCoefficients), [&scalar](const T& i) {return i * scalar;});
             this->coefficients = scaledCoefficients;
-            this->integral->coefficients.clear();
+
             this->cacheValid = false;
         }
 
@@ -62,14 +62,13 @@ class Polynomial
             addedRoot.push_back((-this->coefficients[0] * root));
             lastValue = this->coefficients[0];
 
-            for (auto i = 1; i < this->coefficients.size(); i++) {
+            for (auto i = 1.0; i < this->coefficients.size(); i++) {
                 addedRoot.push_back((lastValue - this->coefficients[i] * root));
                 lastValue = this->coefficients[i];
             }
             addedRoot.push_back(lastValue);
             this->coefficients = addedRoot;
 
-            this->integral->coefficients.clear();
             this->cacheValid = false;
         }
 
@@ -122,7 +121,7 @@ class Polynomial
             for(auto i = 0.0; i < this->coefficients.size(); i++) {
                 results.push_back(this->coefficients[i] / (i+1));
             }
-            this->integral = std::unique_ptr<Polynomial>{ new Polynomial{results} };;
+            this->integral = std::unique_ptr<Polynomial>{ new Polynomial{results} };
         }
 
         T ComputeIntegral(const T a, const T b) {

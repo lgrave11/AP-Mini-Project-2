@@ -28,8 +28,8 @@ int main()
     //bla_int.AddRoot(5);
     //std::cout << "AddRoot(5): " << bla_int << std::endl;
     // Add roots
-    //std::vector<int> vec3{5, 5, 5};
-    //bla_int.AddRoots(vec3);
+    std::vector<int> vec3{5, 5, 5};
+    bla_int.AddRoots({5, 5, 5});
     //std::cout << "AddRoots({5,5,5}): " << bla_int << std::endl;
     std::cout << "Addition: ";
     std::cout << bla_int + bla2_int << std::endl;
