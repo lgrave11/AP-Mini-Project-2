@@ -20,26 +20,28 @@ class Polynomial
 
         Polynomial() : coefficients({}), degree{} {}
         virtual ~Polynomial() {}
-        Polynomial(const Polynomial<T>& oPoly) : coefficients(oPoly.coefficients), degree(oPoly.degree) {} // Copy constructor
+        Polynomial(const Polynomial<T>& oPoly) : coefficients(oPoly.coefficients), degree(oPoly.degree) {} // Copy constructor'
+        Polynomial& operator= (const Polynomial<T>& oPoly); // Copy assignment operator.
         Polynomial(Polynomial<T>&& oPoly); // Move constructor
         Polynomial& operator= (Polynomial<T>&& oPoly); // Move assignment operator.
-        //Polynomial& operator= (const Polynomial<T>& oPoly); // Copy assignment operator.
 
         // Following requirement 5 here and with AddRoots to accept any container. Including array types.
         // Also support braced initializers by giving a hint to the compiler that the Container is a std::initializer_list
-        template<typename Container = std::initializer_list<T>>
+        template<typename Container>
         Polynomial(const Container& c) {
             // Following requirement 3, to use auto where applicable.
             for(auto it = std::begin(c); it != std::end(c); it++) {
-            //for(const auto& item : coeffs) {
                 this->coefficients.emplace_back(*it);
-                //this->coefficients.push_back(item);
             }
             this->degree = this->coefficients.size();
         }
 
+        // Support brace initialization using delegating constructor.
+        Polynomial(const std::initializer_list<T> c) : Polynomial{ std::vector<T> {c} } {}
+
         // Following requirement 4 to use const.
         void Scale(const T scalar) {
+            //std::lock_guard<std::mutex> g(m);
             std::vector<T> scaledCoefficients;
             // Use const reference because we are not modifying i.
             // Also use auto&. Could also just use auto i.
@@ -56,6 +58,7 @@ class Polynomial
         }
 
         void AddRoot(const T root) {
+            //std::lock_guard<std::mutex> g(m);
             std::vector<T> addedRoot {};
             T lastValue{};
             addedRoot.push_back((-this->coefficients[0] * root));
@@ -115,6 +118,7 @@ class Polynomial
             return sum;
         }
 
+        /// 6. Cache the integral data to avoid repetitive integration (Items 16, 40). Make it thread-safe.
         void integralCache() {
             std::vector<T> results;
             results.push_back(0);
@@ -266,7 +270,7 @@ class Polynomial
         }
     protected:
     private:
-        mutable std::mutex m;
+        //mutable std::mutex m;
         mutable bool cacheValid = false;
         std::unique_ptr<Polynomial<T> > integral {};
         //Polynomial integral {};
