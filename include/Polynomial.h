@@ -9,14 +9,14 @@
 #include <sstream>
 #include <memory>
 
-// T = valuetype, e.g double, int or complex
-// C = container type, e.g array, vector or whatever. Just the iterator.
+//2. Make a template class of Polynomial for a given type of coefficients...
 template<typename T>
 class Polynomial
 {
     public:
         std::vector<T> coefficients;
 
+        // (a) Default constructor to create a trivial polynomial: 0.
         Polynomial() : coefficients { std::vector<T> {0} } { }
         virtual ~Polynomial() {}
         Polynomial(const Polynomial<T>& oPoly) = delete; // Copy constructor
@@ -24,37 +24,33 @@ class Polynomial
         Polynomial(Polynomial<T>&& oPoly) : coefficients(std::move(oPoly.coefficients)) {}// Move constructor
         Polynomial& operator= (Polynomial<T>&& oPoly); // Move assignment operator.
 
-        // Following requirement 5 here and with AddRoots to accept any container. Including array types.
+        // (b) Constructor for specific degree term coefficients.
+        // 5. Member functions accepting containers should support any type of container, including array types
+        // 4. Use const where applicable
         template<typename Container>
         Polynomial(const Container& c) : coefficients { std::vector<T> {} } {
-            // Following requirement 3, to use auto where applicable.
+            // 3. Use auto where applicable
             for(auto it = std::cbegin(c); it != std::cend(c); it++) {
                 this->coefficients.emplace_back(*it);
             }
         }
 
-        // Support brace initialization using constructor forwarding.
-        //Polynomial(const std::initializer_list<T> c) : Polynomial{ std::vector<T> {c} } {}
         // Support brace initialization with a regular constructor.
         Polynomial(const std::initializer_list<T> c) : coefficients{ std::vector<T> {c} } {}
 
-        // Following requirement 4 to use const.
+        // (c) A method to scale the polynomial, i.e. multiply by a scalar value.
         void Scale(const T scalar) {
             //std::lock_guard<std::mutex> g(m);
             std::vector<T> scaledCoefficients;
-            // Use const reference because we are not modifying i.
-            // Also use auto&. Could also just use auto i.
-            /*for(const auto& i : this->coefficients) {
-                auto result = i * scalar;
-                scaledCoefficients.push_back(result);
-            }*/
-            /// Use std::transform with a lambda instead of a traditional loop. Requirement 9: Use lambda expressions.
+            /// Use std::transform with a lambda instead of a traditional loop.
+            // Requirement 9: Use lambda expressions.
             std::transform(std::begin(this->coefficients), std::end(this->coefficients), std::back_inserter(scaledCoefficients), [&scalar](const T& i) {return i * scalar;});
             this->coefficients = scaledCoefficients;
 
             this->cacheValid = false;
         }
 
+        // (d) A method to add a root r, i.e. multiply by a term (x-r).
         void AddRoot(const T root) {
             //std::lock_guard<std::mutex> g(m);
             std::vector<T> addedRoot {};
@@ -72,6 +68,8 @@ class Polynomial
             this->cacheValid = false;
         }
 
+        // (e) A method to add several roots at once.
+        // 5. Member functions accepting containers should support any type of container, including array types
         template<typename Container = std::initializer_list<T>>
         void AddRoots(const Container& c)
         {
@@ -80,6 +78,7 @@ class Polynomial
             }
         }
 
+        // (f) A method to valuate the polynomial at a given point.
         T EvaluatePolynomial(const T x) const
         {
             /// Use lambda expressions (Chapter 6, e.g. when computing sums during evaluation of a polynomial; dispatch asynchronous computation).
@@ -97,10 +96,11 @@ class Polynomial
             return result;
         }
 
+        // (g) A method to compute a polynomial which is a derivative of the polynomial.
         // (1 * c1 * x^0) + (2 * c2 * x^1) + (3 * c3 * x^2) + ... + (n * cn * x^(n-1))
-        Polynomial ComputeDerivative() const
+        Polynomial<T> ComputeDerivative() const
         {
-            Polynomial ret {};
+            Polynomial<T> ret {};
             // Shortcut if polynomial is constant
             ret.coefficients.clear();
             double p = 1;
@@ -115,35 +115,11 @@ class Polynomial
                 p++;
             }
             return ret;
-
-
-            /*T sum{};
-            double p = 1;
-            int counter = 0;
-            double i = 0;
-            for(const auto& c : coefficients) {
-                if(counter++ == 0) {
-                    continue;
-                }
-                sum += p * c * pow(x, i);
-                i++;
-                p++;
-            }
-            return sum;*/
         }
 
-        /// 6. Cache the integral data to avoid repetitive integration (Items 16, 40). Make it thread-safe.
-        void integralCache() {
-            std::vector<T> results;
-            results.push_back(0);
-            for(auto i = 0.0; i < this->coefficients.size(); i++) {
-                results.push_back(this->coefficients[i] / (i+1));
-            }
-            this->integral = std::unique_ptr<Polynomial>{ new Polynomial{results} };
-        }
-
+        // (h) A method to compute an integral for given interval bounds.
         T ComputeIntegral(const T a, const T b) {
-            /// Requirement 8: Use type traits (see examples in Item 27, e.g. disable or fail assertion for the integration method over integer types).
+            // 8. Use type traits
             // Alternatively I could have used enable_if here (std::enable_if_t<!std::is_integral<T>::value, T>).
             static_assert(!std::is_integral<T>::value,"ComputeIntegral is not supported for integer types.");
 
@@ -155,7 +131,19 @@ class Polynomial
             return this->integral->EvaluatePolynomial(b) - this->integral->EvaluatePolynomial(a);
         }
 
-        // Operators
+        // 6. Cache the integral data to avoid repetitive integration (Items 16, 40).
+        void integralCache() {
+            // Make it thread-safe.
+            //std::lock_guard<std::mutex> g(m);
+            std::vector<T> results;
+            results.push_back(0);
+            for(auto i = 0.0; i < this->coefficients.size(); i++) {
+                results.push_back(this->coefficients[i] / (i+1));
+            }
+            this->integral = std::unique_ptr<Polynomial>{ new Polynomial{results} };
+        }
+
+        // (i) A plus operator to return a polynomial equal to a sum of two polynomials.
         Polynomial<T> operator+(const Polynomial<T>& rhs) const {
             std::vector<T> tmp;
             std::vector<T> result;
@@ -177,6 +165,7 @@ class Polynomial
             return res;
         }
 
+        // (j) A star operator to return a polynomial equal to a product of two polynomials.
         Polynomial<T> operator*(const Polynomial<T>& rhs) const {
             // Initialize vector.
             const auto newDegree = this->coefficients.size() + rhs.coefficients.size()-1;
@@ -197,6 +186,7 @@ class Polynomial
             return res;
         }
 
+        // Also adding a operator<< to make it easier to debug and use the library.
         friend std::ostream& operator<<(std::ostream& out, const Polynomial<T>& pol) {
             int index = 0;
             int lastIndex = pol.coefficients.size() - 1;
@@ -215,7 +205,6 @@ class Polynomial
         //mutable std::mutex m;
         mutable bool cacheValid = false;
         std::unique_ptr<Polynomial<T> > integral {};
-        std::unique_ptr<Polynomial<T> > derivative {};
 };
 
 
