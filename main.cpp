@@ -21,6 +21,7 @@ int main()
     Polynomial<int> bla_int {vec1};
     Polynomial<int> bla2_int {vec2};
     std::cout << "std::cout: " << bla_int << std::endl;
+    std::cout << "std::cout: " << bla2_int << std::endl;
     // Scale
     //bla_int.Scale(5);
     //std::cout << bla_int << std::endl;
@@ -29,8 +30,15 @@ int main()
     //std::cout << "AddRoot(5): " << bla_int << std::endl;
     // Add roots
     //std::vector<int> vec3{5, 5, 5};
-    //bla_int.AddRoots({5, 5, 5});
-    //std::cout << "AddRoots({5,5,5}): " << bla_int << std::endl;
+    bla_int.AddRoots({5,5,5});
+    std::cout << "AddRoots({5,5,5}): " << bla_int << std::endl;
+    //bla_int.AddRoot(5);
+    //std::cout << "AddRoot(5): " << bla_int << std::endl;
+    //bla_int.AddRoot(5);
+    //std::cout << "AddRoot(5): " << bla_int << std::endl;
+    //bla_int.AddRoot(5);
+    //std::cout << "AddRoot(5): " << bla_int << std::endl;
+
     std::cout << "Addition: ";
     std::cout << bla_int + bla2_int << std::endl;
     std::cout << "Addition: ";

@@ -21,7 +21,7 @@ class Polynomial
         virtual ~Polynomial() {}
         Polynomial(const Polynomial<T>& oPoly) = delete; // Copy constructor
         Polynomial& operator= (const Polynomial<T>& oPoly) = delete; // Copy assignment operator.
-        Polynomial(Polynomial<T>&& oPoly); // Move constructor
+        Polynomial(Polynomial<T>&& oPoly) : coefficients(std::move(oPoly.coefficients)) {}// Move constructor
         Polynomial& operator= (Polynomial<T>&& oPoly); // Move assignment operator.
 
         // Following requirement 5 here and with AddRoots to accept any container. Including array types.
