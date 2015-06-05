@@ -10,7 +10,7 @@
 
 int main()
 {
-    std::cout << "For int" << std::endl;
+    /*std::cout << "For int" << std::endl;
     std::array<int, 4> vec0{5,3, -1, 2};
     std::vector<int> vec1{5, 3, -1, 2};
     std::vector<int> vec2{5, 3, -1};
@@ -81,7 +81,7 @@ int main()
     std::cout << bla.EvaluatePolynomial(5) << std::endl; // Should be 245
     Polynomial<std::complex<double> > testBlah3 = bla.ComputeDerivative();
     std::cout << testBlah3.EvaluatePolynomial(5) << std::endl; // Should be 143
-    std::cout << bla.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7
+    std::cout << bla.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7*/
 
     /// Testing ideas:
     //(p1 + p2)(x) = p1(x) + p2(x);
@@ -93,10 +93,19 @@ int main()
     //std::cout << (p1 * p2).EvaluatePolynomial(5) << "==" << p1.EvaluatePolynomial(5) * p2.EvaluatePolynomial(5) << std::endl;
     //std::cout << "if p(x) = (x-r1) * (x-r2), then p'((r1 + r2) / 2) == 0: ";
     //double r1 = 5;
-    //double r2 = 3;
+    //double r2 = 3;s
+
 
     //Polynomial<double> p {r1 * r2, (-r1-r2), 1};
     //std::cout << p.ComputeDerivative().EvaluatePolynomial((r1+r2)/2) << std::endl;
+
+    Polynomial<double> a{ 2 };
+    Polynomial<double> myPoly{ 1, 2, 1 };
+    myPoly.AddRoot(0);
+    myPoly = a * myPoly;
+    myPoly = myPoly * myPoly;
+    myPoly = myPoly * myPoly;
+    std::cout << myPoly << std::endl;
 
 
     return 0;
