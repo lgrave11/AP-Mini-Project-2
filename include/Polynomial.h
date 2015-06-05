@@ -14,10 +14,10 @@ template<typename T>
 class Polynomial
 {
     public:
-        std::vector<T> coefficients;
+        std::unique_ptr<std::vector<T> > coefficients;
 
         // (a) Default constructor to create a trivial polynomial: 0.
-        Polynomial() : coefficients { std::vector<T> {0} } { }
+        Polynomial() : coefficients { std::make_unique<std::vector<T> >(0) } { }
         virtual ~Polynomial() {}
         Polynomial(const Polynomial<T>& oPoly) = delete; // Copy constructor
         Polynomial& operator= (const Polynomial<T>& oPoly) = delete; // Copy assignment operator.
@@ -25,7 +25,10 @@ class Polynomial
             *this = std::move(oPoly);
         }// Move constructor
         Polynomial& operator= (Polynomial<T>&& oPoly) {
-            this->coefficients = oPoly.coefficients;
+            if (this != &oPoly)
+            {
+                this->coefficients = std::move(oPoly.coefficients);
+            }
             return *this;
         }; // Move assignment operator.
 
@@ -33,24 +36,24 @@ class Polynomial
         // 5. Member functions accepting containers should support any type of container, including array types
         // 4. Use const where applicable
         template<typename Container>
-        Polynomial(const Container& c) : coefficients { std::vector<T> {} } {
+        Polynomial(const Container& c) : coefficients{ std::make_unique<std::vector<T> >() } {
             // 3. Use auto where applicable
             for(auto it = std::cbegin(c); it != std::cend(c); it++) {
-                this->coefficients.emplace_back(*it);
+                (*this->coefficients).emplace_back(*it);
             }
         }
 
         // Support brace initialization with a regular constructor.
-        Polynomial(const std::initializer_list<T> c) : coefficients{ std::vector<T> {c} } {}
+        Polynomial(const std::initializer_list<T> c) : coefficients{ std::make_unique<std::vector<T> >(c) } {}
 
         // (c) A method to scale the polynomial, i.e. multiply by a scalar value.
         void Scale(const T scalar) {
             //std::lock_guard<std::mutex> g(m);
-            std::vector<T> scaledCoefficients;
+            std::unique_ptr<std::vector<T> > scaledCoefficients = std::make_unique<std::vector<T> >();
             /// Use std::transform with a lambda instead of a traditional loop.
             // Requirement 9: Use lambda expressions.
-            std::transform(std::begin(this->coefficients), std::end(this->coefficients), std::back_inserter(scaledCoefficients), [&scalar](const T& i) {return i * scalar;});
-            this->coefficients = scaledCoefficients;
+            std::transform(std::begin((*this->coefficients)), std::end((*this->coefficients)), std::back_inserter(*scaledCoefficients), [&scalar](const T& i) {return i * scalar;});
+            this->coefficients = std::move(scaledCoefficients);
 
             this->cacheValid = false;
         }
@@ -58,17 +61,17 @@ class Polynomial
         // (d) A method to add a root r, i.e. multiply by a term (x-r).
         void AddRoot(const T root) {
             //std::lock_guard<std::mutex> g(m);
-            std::vector<T> addedRoot {};
+            std::unique_ptr<std::vector<T> > addedRoot = std::make_unique<std::vector<T> >();
             T lastValue{};
-            addedRoot.push_back((-this->coefficients[0] * root));
-            lastValue = this->coefficients[0];
+            (*addedRoot).push_back((-(*this->coefficients)[0] * root));
+            lastValue = (*this->coefficients)[0];
 
-            for (auto i = 1.0; i < this->coefficients.size(); i++) {
-                addedRoot.push_back((lastValue - this->coefficients[i] * root));
-                lastValue = this->coefficients[i];
+            for (auto i = 1.0; i < (*this->coefficients).size(); i++) {
+                (*addedRoot).push_back((lastValue - (*this->coefficients)[i] * root));
+                lastValue = (*this->coefficients)[i];
             }
-            addedRoot.push_back(lastValue);
-            this->coefficients = addedRoot;
+            (*addedRoot).push_back(lastValue);
+            this->coefficients = std::move(addedRoot);
 
             this->cacheValid = false;
         }
@@ -93,7 +96,7 @@ class Polynomial
 
             // Use non-member begin and end for making it more generic.
             // Capture everything by memory as we want to write it..
-            std::for_each(std::begin(this->coefficients),std::end(this->coefficients),[&](T n){ result += (n * pow(x, i)); i++; });
+            std::for_each(std::begin((*this->coefficients)),std::end((*this->coefficients)),[&](T n){ result += (n * pow(x, i)); i++; });
 
             /// Alternatively I could have used an ordinary for loop:
             /*for (auto i = 0; i < this->coefficients.size(); i++)
@@ -107,15 +110,15 @@ class Polynomial
         {
             Polynomial<T> ret {};
             // Shortcut if polynomial is constant
-            ret.coefficients.clear();
+            (*ret.coefficients).clear();
             double p = 1;
             int counter = 0;
             double i = 0;
-            for(const auto& c : this->coefficients) {
+            for(const auto& c : (*this->coefficients)) {
                 if(counter++ == 0) {
                     continue;
                 }
-                ret.coefficients.push_back(p * c);
+                (*ret.coefficients).push_back(p * c);
                 i++;
                 p++;
             }
@@ -142,8 +145,8 @@ class Polynomial
             //std::lock_guard<std::mutex> g(m);
             std::vector<T> results;
             results.push_back(0);
-            for(auto i = 0.0; i < this->coefficients.size(); i++) {
-                results.push_back(this->coefficients[i] / (i+1));
+            for(auto i = 0.0; i < (*this->coefficients).size(); i++) {
+                results.push_back((*this->coefficients)[i] / (i+1));
             }
             this->integral = std::unique_ptr<Polynomial>{ new Polynomial{results} };
         }
@@ -153,16 +156,16 @@ class Polynomial
             std::vector<T> tmp;
             std::vector<T> result;
 
-            if(this->coefficients.size() >= rhs.coefficients.size()) {
-                tmp = rhs.coefficients;
-                tmp.insert(tmp.end(),this->coefficients.size() - rhs.coefficients.size(), T{});
+            if((*this->coefficients).size() >= (*rhs.coefficients).size()) {
+                tmp = (*rhs.coefficients);
+                tmp.insert(tmp.end(),(*this->coefficients).size() - (*rhs.coefficients).size(), T{});
                 // Could also use std::plus<T> here.
-                transform(std::begin(this->coefficients),std::end(this->coefficients),std::begin(tmp),std::back_inserter(result),[](T l, T r) { return l + r; });
+                transform(std::begin((*this->coefficients)),std::end((*this->coefficients)),std::begin(tmp),std::back_inserter(result),[](T l, T r) { return l + r; });
             }
             else {
-                tmp = this->coefficients;
-                tmp.insert(tmp.end(), rhs.coefficients.size() - this->coefficients.size(), T{});
-                transform(std::begin(rhs.coefficients),std::end(rhs.coefficients),std::begin(tmp),std::back_inserter(result),[](T l, T r) { return l + r; });
+                tmp = (*this->coefficients);
+                tmp.insert(tmp.end(), (*rhs.coefficients).size() - (*this->coefficients).size(), T{});
+                transform(std::begin((*rhs.coefficients)),std::end((*rhs.coefficients)),std::begin(tmp),std::back_inserter(result),[](T l, T r) { return l + r; });
             }
 
             Polynomial<T> res {result};
@@ -173,13 +176,13 @@ class Polynomial
         // (j) A star operator to return a polynomial equal to a product of two polynomials.
         Polynomial<T> operator*(const Polynomial<T>& rhs) const {
             // Initialize vector.
-            const auto newDegree = this->coefficients.size() + rhs.coefficients.size()-1;
+            const auto newDegree = (*this->coefficients).size() + (*rhs.coefficients).size()-1;
             std::vector<T> tmp(newDegree);
 
             int iCount = 0;
-            for(const auto& i : this->coefficients) {
+            for(const auto& i : (*this->coefficients)) {
                 int jCount = 0;
-                for(const auto& j : rhs.coefficients) {
+                for(const auto& j : (*rhs.coefficients)) {
                     tmp[iCount+jCount] += i * j;
                     jCount++;
                 }
@@ -194,8 +197,8 @@ class Polynomial
         // Also adding a operator<< to make it easier to debug and use the library.
         friend std::ostream& operator<<(std::ostream& out, const Polynomial<T>& pol) {
             int index = 0;
-            int lastIndex = pol.coefficients.size() - 1;
-            for(const auto& i : pol.coefficients)
+            int lastIndex = (*pol.coefficients).size() - 1;
+            for(const auto& i : (*pol.coefficients))
             {
                 out << "(" << i << "*" << "x^" << index << ")";
                 if(index != lastIndex) {
