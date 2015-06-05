@@ -80,7 +80,7 @@ int main()
     std::cout << bla.EvaluatePolynomial(5) << std::endl; // Should be 245
     Polynomial<std::complex<double> > testBlah3 = bla.ComputeDerivative();
     std::cout << testBlah3.EvaluatePolynomial(5) << std::endl; // Should be 143
-    std::cout << bla.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7
+    std::cout << bla.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7 blah
 
     /// Testing ideas:
     //(p1 + p2)(x) = p1(x) + p2(x);
