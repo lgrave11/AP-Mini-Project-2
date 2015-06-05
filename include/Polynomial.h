@@ -39,7 +39,7 @@ class Polynomial
         Polynomial(const Container& c) : coefficients{ std::make_unique<std::vector<T> >() } {
             // 3. Use auto where applicable
             for(auto it = std::cbegin(c); it != std::cend(c); it++) {
-                (*this->coefficients).emplace_back(*it);
+                this->coefficients->emplace_back(*it);
             }
         }
 
@@ -110,7 +110,7 @@ class Polynomial
         {
             Polynomial<T> ret {};
             // Shortcut if polynomial is constant
-            (*ret.coefficients).clear();
+            ret.coefficients->clear();
             double p = 1;
             int counter = 0;
             double i = 0;
@@ -118,7 +118,7 @@ class Polynomial
                 if(counter++ == 0) {
                     continue;
                 }
-                (*ret.coefficients).push_back(p * c);
+                ret.coefficients->push_back(p * c);
                 i++;
                 p++;
             }
@@ -145,7 +145,7 @@ class Polynomial
             //std::lock_guard<std::mutex> g(m);
             std::vector<T> results;
             results.push_back(0);
-            for(auto i = 0.0; i < (*this->coefficients).size(); i++) {
+            for(auto i = 0.0; i < this->coefficients->size(); i++) {
                 results.push_back((*this->coefficients)[i] / (i+1));
             }
             this->integral = std::unique_ptr<Polynomial>{ new Polynomial{results} };
@@ -156,15 +156,15 @@ class Polynomial
             std::vector<T> tmp;
             std::vector<T> result;
 
-            if((*this->coefficients).size() >= (*rhs.coefficients).size()) {
+            if(this->coefficients->size() >= rhs.coefficients->size()) {
                 tmp = (*rhs.coefficients);
-                tmp.insert(tmp.end(),(*this->coefficients).size() - (*rhs.coefficients).size(), T{});
+                tmp.insert(tmp.end(),this->coefficients->size() - rhs.coefficients->size(), T{});
                 // Could also use std::plus<T> here.
                 transform(std::begin((*this->coefficients)),std::end((*this->coefficients)),std::begin(tmp),std::back_inserter(result),[](T l, T r) { return l + r; });
             }
             else {
                 tmp = (*this->coefficients);
-                tmp.insert(tmp.end(), (*rhs.coefficients).size() - (*this->coefficients).size(), T{});
+                tmp.insert(tmp.end(), rhs.coefficients->size() - this->coefficients->size(), T{});
                 transform(std::begin((*rhs.coefficients)),std::end((*rhs.coefficients)),std::begin(tmp),std::back_inserter(result),[](T l, T r) { return l + r; });
             }
 
@@ -176,7 +176,7 @@ class Polynomial
         // (j) A star operator to return a polynomial equal to a product of two polynomials.
         Polynomial<T> operator*(const Polynomial<T>& rhs) const {
             // Initialize vector.
-            const auto newDegree = (*this->coefficients).size() + (*rhs.coefficients).size()-1;
+            const auto newDegree = this->coefficients->size() + rhs.coefficients->size()-1;
             std::vector<T> tmp(newDegree);
 
             int iCount = 0;
@@ -197,7 +197,7 @@ class Polynomial
         // Also adding a operator<< to make it easier to debug and use the library.
         friend std::ostream& operator<<(std::ostream& out, const Polynomial<T>& pol) {
             int index = 0;
-            int lastIndex = (*pol.coefficients).size() - 1;
+            int lastIndex = pol.coefficients->size() - 1;
             for(const auto& i : (*pol.coefficients))
             {
                 out << "(" << i << "*" << "x^" << index << ")";

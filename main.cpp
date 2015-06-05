@@ -96,13 +96,13 @@ int main()
     Polynomial<double> p {r1 * r2, (-r1-r2), 1};
     std::cout << p.ComputeDerivative().EvaluatePolynomial((r1+r2)/2) << std::endl;
 
-    //Polynomial<double> a{ 2 };
-    //Polynomial<double> myPoly{ 1, 2, 1 };
-    //myPoly.AddRoot(0);
-    //myPoly = a * myPoly;
-    //myPoly = myPoly * myPoly;
-    //myPoly = myPoly * myPoly;
-    //std::cout << myPoly << std::endl;
+    Polynomial<double> a{ 2 };
+    Polynomial<double> myPoly{ 1, 2, 1 };
+    myPoly.AddRoot(0);
+    myPoly = a * myPoly;
+    myPoly = myPoly * myPoly;
+    myPoly = myPoly * myPoly;
+    std::cout << myPoly << std::endl;
 
 
     return 0;
