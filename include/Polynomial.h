@@ -128,29 +128,31 @@ class Polynomial
         }
 
         // (h) A method to compute an integral for given interval bounds.
-        T ComputeIntegral(const T a, const T b) {
+        T ComputeIntegral(const T a, const T b) const {
             // 8. Use type traits
             // Alternatively I could have used enable_if here (std::enable_if_t<!std::is_integral<T>::value, T>).
             static_assert(!std::is_integral<T>::value,"ComputeIntegral is not supported for integer types.");
-
-            //std::lock_guard<std::mutex> g(m);
-            if(cacheValid == false) {
-                integralCache();
-                cacheValid = true;
-            }
-            return this->integral->EvaluatePolynomial(b) - this->integral->EvaluatePolynomial(a);
+            integralCache();
+            // 10. Use concurrency, might not make sense from a design perspective, but I struggled with here to put it.
+            auto bFuture = std::async(std::launch::async,[&](T val) { return this->integral->EvaluatePolynomial(val); }, b);
+            auto aFuture = std::async(std::launch::async, [&](T val) { return this->integral->EvaluatePolynomial(val); }, a);
+            return bFuture.get() - aFuture.get();
+            //return this->integral->EvaluatePolynomial(b) - this->integral->EvaluatePolynomial(a);
         }
 
         // 6. Cache the integral data to avoid repetitive integration (Items 16, 40).
-        void integralCache() {
+        void integralCache() const {
             // Make it thread-safe.
-            //std::lock_guard<std::mutex> g(m);
-            std::vector<T> results;
-            results.push_back(0);
-            for(auto i = 0.0; i < this->coefficients->size(); i++) {
-                results.push_back((*this->coefficients)[i] / (i+1));
+            std::lock_guard<std::mutex> g(m);
+            if(this->cacheValid == false) {
+                std::vector<T> results;
+                results.push_back(0);
+                for(auto i = 0.0; i < this->coefficients->size(); i++) {
+                    results.push_back((*this->coefficients)[i] / (i+1));
+                }
+                this->integral = std::unique_ptr<Polynomial>{ new Polynomial{results} };
             }
-            this->integral = std::unique_ptr<Polynomial>{ new Polynomial{results} };
+            this->cacheValid = true;
         }
 
         // (i) A plus operator to return a polynomial equal to a sum of two polynomials.
@@ -212,9 +214,9 @@ class Polynomial
         }
     protected:
     private:
-        //mutable std::mutex m;
+        mutable std::mutex m;
         mutable bool cacheValid = false;
-        std::unique_ptr<Polynomial<T> > integral {};
+        mutable std::unique_ptr<Polynomial<T> > integral {};
 };
 
 
