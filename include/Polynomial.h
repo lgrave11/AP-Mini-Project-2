@@ -8,6 +8,7 @@
 #include <mutex>
 #include <sstream>
 #include <memory>
+#include <future>
 
 //2. Make a template class of Polynomial for a given type of coefficients...
 template<typename T>
@@ -21,6 +22,7 @@ class Polynomial
         virtual ~Polynomial() {}
         Polynomial(const Polynomial<T>& oPoly) = delete; // Copy constructor
         Polynomial& operator= (const Polynomial<T>& oPoly) = delete; // Copy assignment operator.
+        // 7. Implement move semantics using smart pointers.
         Polynomial(Polynomial<T>&& oPoly) {
             *this = std::move(oPoly);
         }// Move constructor
