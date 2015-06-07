@@ -26,10 +26,12 @@ class Polynomial
         Polynomial(Polynomial<T>&& oPoly) {
             *this = std::move(oPoly);
         }// Move constructor
+
         Polynomial& operator= (Polynomial<T>&& oPoly) {
             if (this != &oPoly)
             {
                 this->coefficients = std::move(oPoly.coefficients);
+                this->cacheValid = false;
             }
             return *this;
         }; // Move assignment operator.
@@ -50,7 +52,7 @@ class Polynomial
 
         // (c) A method to scale the polynomial, i.e. multiply by a scalar value.
         void Scale(const T scalar) {
-            //std::lock_guard<std::mutex> g(m);
+            std::lock_guard<std::mutex> g(m);
             std::unique_ptr<std::vector<T> > scaledCoefficients = std::make_unique<std::vector<T> >();
             /// Use std::transform with a lambda instead of a traditional loop.
             // Requirement 9: Use lambda expressions.
@@ -62,7 +64,7 @@ class Polynomial
 
         // (d) A method to add a root r, i.e. multiply by a term (x-r).
         void AddRoot(const T root) {
-            //std::lock_guard<std::mutex> g(m);
+            std::lock_guard<std::mutex> g(m);
             std::unique_ptr<std::vector<T> > addedRoot = std::make_unique<std::vector<T> >();
             T lastValue{};
             (*addedRoot).push_back((-(*this->coefficients)[0] * root));
@@ -111,7 +113,6 @@ class Polynomial
         Polynomial<T> ComputeDerivative() const
         {
             Polynomial<T> ret {};
-            // Shortcut if polynomial is constant
             ret.coefficients->clear();
             double p = 1;
             int counter = 0;
