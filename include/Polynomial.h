@@ -18,16 +18,7 @@
     Study: Software 8
 
     Requirements fulfilled to the best of my knowledge:
-    1a-j
-    2
-    3
-    4
-    5
-    6
-    7
-    8
-    9
-    10
+    1a-j, 2, 3, 4, 5, 6, 7, 8, 9, 10
 
 */
 
@@ -77,7 +68,7 @@ class Polynomial
             std::lock_guard<std::mutex> g(m);
             std::unique_ptr<std::vector<T> > scaledCoefficients = std::make_unique<std::vector<T> >();
             /// Use std::transform with a lambda instead of a traditional loop.
-            // Requirement 9: Use lambda expressions.
+            // 9. Use lambda expressions.
             std::transform(std::begin((*this->coefficients)), std::end((*this->coefficients)), std::back_inserter(*scaledCoefficients), [&scalar](const T& i) {return i * scalar;});
             this->coefficients = std::move(scaledCoefficients);
 
