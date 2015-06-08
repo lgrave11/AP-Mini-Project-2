@@ -121,8 +121,7 @@ class Polynomial
             auto i = 0;
 
             // Use non-member begin and end for making it more generic.
-            // Capture everything by memory as we want to write it..
-            std::for_each(std::begin((*this->coefficients)),std::end((*this->coefficients)),[&](T n){ result += (n * pow(x, i)); i++; });
+            std::for_each(std::begin((*this->coefficients)),std::end((*this->coefficients)),[&result, &i, x](T n){ result += (n * pow(x, i)); i++; });
 
             /// Alternatively I could have used an ordinary for loop:
             //for (auto i = 0; i < this->coefficients.size(); i++)
