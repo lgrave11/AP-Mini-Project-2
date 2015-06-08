@@ -10,7 +10,27 @@
 #include <memory>
 #include <future>
 
-//2. Make a template class of Polynomial for a given type of coefficients...
+/**
+    Name: Lasse Vang Gravesen
+    Email: lgrave11@student.aau.dk
+    Study: Software 8
+
+    Requirements fulfilled to the best of my knowledge:
+    1a-j
+    2
+    3
+    4
+    5
+    6
+    7
+    8
+    9
+    10
+
+*/
+
+
+//2. Make a template class of Polynomial for a given type of coefficients .
 template<typename T>
 class Polynomial
 {
@@ -134,8 +154,8 @@ class Polynomial
             // Alternatively I could have used enable_if here (std::enable_if_t<!std::is_integral<T>::value, T>).
             static_assert(!std::is_integral<T>::value,"ComputeIntegral is not supported for integer types.");
             integralCache();
-            // 10. Use concurrency, might not make sense from a design perspective, but I struggled with here to put it.
             auto bFuture = std::async(std::launch::async,[&](T val) { return this->integral->EvaluatePolynomial(val); }, b);
+            // 10. Use concurrency, might not make sense from a design perspective, but I struggled with here to put it.
             auto aFuture = std::async(std::launch::async, [&](T val) { return this->integral->EvaluatePolynomial(val); }, a);
             return bFuture.get() - aFuture.get();
             //return this->integral->EvaluatePolynomial(b) - this->integral->EvaluatePolynomial(a);
