@@ -9,6 +9,8 @@
 #include <sstream>
 #include <memory>
 #include <future>
+#include <numeric>
+#include <cmath>
 
 /**
     Name: Lasse Vang Gravesen
@@ -29,20 +31,20 @@
 
 */
 
-
-//2. Make a template class of Polynomial for a given type of coefficients .
+// 2. Make a template class of Polynomial for a given type of coefficients .
 template<typename T>
 class Polynomial
 {
     public:
         std::unique_ptr<std::vector<T> > coefficients;
 
-        // (a) Default constructor to create a trivial polynomial: 0.
+        // 1.(a) Default constructor to create a trivial polynomial: 0.
         Polynomial() : coefficients { std::make_unique<std::vector<T> >(0) } { }
         virtual ~Polynomial() {}
         Polynomial(const Polynomial<T>& oPoly) = delete; // Copy constructor
         Polynomial& operator= (const Polynomial<T>& oPoly) = delete; // Copy assignment operator.
         // 7. Implement move semantics using smart pointers.
+        // Use move assignment operator in the move constructor.
         Polynomial(Polynomial<T>&& oPoly) {
             *this = std::move(oPoly);
         }// Move constructor
@@ -56,7 +58,7 @@ class Polynomial
             return *this;
         }; // Move assignment operator.
 
-        // (b) Constructor for specific degree term coefficients.
+        // 1.(b) Constructor for specific degree term coefficients.
         // 5. Member functions accepting containers should support any type of container, including array types
         // 4. Use const where applicable
         template<typename Container>
@@ -70,7 +72,7 @@ class Polynomial
         // Support brace initialization with a regular constructor.
         Polynomial(const std::initializer_list<T> c) : coefficients{ std::make_unique<std::vector<T> >(c) } {}
 
-        // (c) A method to scale the polynomial, i.e. multiply by a scalar value.
+        // 1.(c) A method to scale the polynomial, i.e. multiply by a scalar value.
         void Scale(const T scalar) {
             std::lock_guard<std::mutex> g(m);
             std::unique_ptr<std::vector<T> > scaledCoefficients = std::make_unique<std::vector<T> >();
@@ -82,7 +84,7 @@ class Polynomial
             this->cacheValid = false;
         }
 
-        // (d) A method to add a root r, i.e. multiply by a term (x-r).
+        // 1.(d) A method to add a root r, i.e. multiply by a term (x-r).
         void AddRoot(const T root) {
             std::lock_guard<std::mutex> g(m);
             std::unique_ptr<std::vector<T> > addedRoot = std::make_unique<std::vector<T> >();
@@ -100,7 +102,7 @@ class Polynomial
             this->cacheValid = false;
         }
 
-        // (e) A method to add several roots at once.
+        // 1.(e) A method to add several roots at once.
         // 5. Member functions accepting containers should support any type of container, including array types
         template<typename Container = std::initializer_list<T>>
         void AddRoots(const Container& c)
@@ -110,7 +112,7 @@ class Polynomial
             }
         }
 
-        // (f) A method to valuate the polynomial at a given point.
+        // 1.(f) A method to valuate the polynomial at a given point.
         T EvaluatePolynomial(const T x) const
         {
             /// Use lambda expressions (Chapter 6, e.g. when computing sums during evaluation of a polynomial; dispatch asynchronous computation).
@@ -123,12 +125,12 @@ class Polynomial
             std::for_each(std::begin((*this->coefficients)),std::end((*this->coefficients)),[&](T n){ result += (n * pow(x, i)); i++; });
 
             /// Alternatively I could have used an ordinary for loop:
-            /*for (auto i = 0; i < this->coefficients.size(); i++)
-                result += (this->coefficients[i] * pow(x, i));*/
+            //for (auto i = 0; i < this->coefficients.size(); i++)
+            //    result += (this->coefficients[i] * pow(x, i));
             return result;
         }
 
-        // (g) A method to compute a polynomial which is a derivative of the polynomial.
+        // 1.(g) A method to compute a polynomial which is a derivative of the polynomial.
         // (1 * c1 * x^0) + (2 * c2 * x^1) + (3 * c3 * x^2) + ... + (n * cn * x^(n-1))
         Polynomial<T> ComputeDerivative() const
         {
@@ -148,14 +150,14 @@ class Polynomial
             return ret;
         }
 
-        // (h) A method to compute an integral for given interval bounds.
+        // 1.(h) A method to compute an integral for given interval bounds.
         T ComputeIntegral(const T a, const T b) const {
             // 8. Use type traits
             // Alternatively I could have used enable_if here (std::enable_if_t<!std::is_integral<T>::value, T>).
             static_assert(!std::is_integral<T>::value,"ComputeIntegral is not supported for integer types.");
             integralCache();
-            auto bFuture = std::async(std::launch::async,[&](T val) { return this->integral->EvaluatePolynomial(val); }, b);
             // 10. Use concurrency, might not make sense from a design perspective, but I struggled with here to put it.
+            auto bFuture = std::async(std::launch::async,[&](T val) { return this->integral->EvaluatePolynomial(val); }, b);
             auto aFuture = std::async(std::launch::async, [&](T val) { return this->integral->EvaluatePolynomial(val); }, a);
             return bFuture.get() - aFuture.get();
             //return this->integral->EvaluatePolynomial(b) - this->integral->EvaluatePolynomial(a);
@@ -171,12 +173,12 @@ class Polynomial
                 for(auto i = 0.0; i < this->coefficients->size(); i++) {
                     results.push_back((*this->coefficients)[i] / (i+1));
                 }
-                this->integral = std::unique_ptr<Polynomial>{ new Polynomial{results} };
+                this->integral = std::make_unique<Polynomial<T> >(results); //std::unique_ptr<Polynomial>{ new Polynomial{results} };
             }
             this->cacheValid = true;
         }
 
-        // (i) A plus operator to return a polynomial equal to a sum of two polynomials.
+        // 1.(i) A plus operator to return a polynomial equal to a sum of two polynomials.
         Polynomial<T> operator+(const Polynomial<T>& rhs) const {
             std::vector<T> tmp;
             std::vector<T> result;
@@ -198,7 +200,7 @@ class Polynomial
             return res;
         }
 
-        // (j) A star operator to return a polynomial equal to a product of two polynomials.
+        // 1.(j) A star operator to return a polynomial equal to a product of two polynomials.
         Polynomial<T> operator*(const Polynomial<T>& rhs) const {
             // Initialize vector.
             const auto newDegree = this->coefficients->size() + rhs.coefficients->size()-1;

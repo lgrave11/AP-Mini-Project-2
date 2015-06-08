@@ -5,7 +5,8 @@
 #include <functional>   // std::plus
 #include <complex>
 #include <iterator>
-#include <time.h>
+#include <chrono>
+#include <ctime>
 #include "include/Polynomial.h" // Must include template implementation file.
 
 int main()
@@ -15,7 +16,6 @@ int main()
     std::vector<int> vec1{5, 3, -1, 2};
     std::vector<int> vec2{5, 3, -1};
     Polynomial<int> bla0_int {};
-    // Can also use template<Iterator> and std::begin(vec1), std::end(vec1)
     Polynomial<int> bla3_int {5,3,-1,2};
     Polynomial<int> bla1_int {vec0};
     Polynomial<int> bla_int {vec1};
@@ -26,8 +26,8 @@ int main()
     //bla_int.Scale(5);
     //std::cout << bla_int << std::endl;
     // Add root
-    //bla_int.AddRoot(5);
-    //std::cout << "AddRoot(5): " << bla_int << std::endl;
+    bla_int.AddRoot(5);
+    std::cout << "AddRoot(5): " << bla_int << std::endl;
     // Add roots
     //bla_int.AddRoots({5,5,5});
     //std::cout << "AddRoots({5,5,5}): " << bla_int << std::endl;
@@ -82,7 +82,7 @@ int main()
     std::cout << testBlah3.EvaluatePolynomial(5) << std::endl; // Should be 143
     std::cout << bla.ComputeIntegral(0, 10) << std::endl; // Should be 4866.7 blah
 
-    /// Testing ideas:
+    /*/// Testing ideas:
     //(p1 + p2)(x) = p1(x) + p2(x);
     Polynomial<double> p1 {5,3};
     Polynomial<double> p2 {3,5};
@@ -102,7 +102,28 @@ int main()
     myPoly = a * myPoly;
     myPoly = myPoly * myPoly;
     myPoly = myPoly * myPoly;
-    std::cout << myPoly << std::endl;
+    std::cout << myPoly << std::endl;*/
+
+    /*Polynomial<double> test{1,2,3};
+    Polynomial<double> test2{3,2,1};
+    test = std::move(test2);
+    std::cout << test << std::endl;*/
+
+    /*std::vector<double> blah;
+    for(double i = 0; i < 1000000; i++) {
+        blah.push_back(i);
+    }
+
+    Polynomial<double> test{blah};
+    auto start_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+    test.ComputeIntegral(0,10); // Cache
+    auto mid_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+    std::cout << (mid_time - start_time).count() << std::endl;
+    test.ComputeIntegral(0,10);
+    auto end_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+
+    auto time_taken = (end_time - mid_time).count();
+    std::cout << time_taken << std::endl;*/
 
 
     return 0;
